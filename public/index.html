@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-stone-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Délices d'Orient & Maghreb | Recettes Halal, Planificateur & Courses IA</title>
+  
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            spice: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316', // Terracotta orange
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            olive: {
+              50: '#f4f7f2',
+              100: '#e5ece1',
+              500: '#557a46',
+              600: '#436336',
+              700: '#344e2a',
+            },
+            saffron: {
+              400: '#facc15',
+              500: '#eab308',
+              600: '#ca8a04',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+    
+    [v-cloak] { display: none; }
+    
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f5f5f4;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #d6d3d1;
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #a8a29e;
+    }
+    
+    .badge-tunisie {
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      color: white;
+    }
+    .badge-maroc {
+      background: linear-gradient(135deg, #15803d, #166534);
+      color: white;
+    }
+    .badge-halal {
+      background: linear-gradient(135deg, #ca8a04, #a16207);
+      color: white;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans text-stone-800 antialiased selection:bg-spice-200">
+  <div id="app" v-cloak class="flex flex-col h-full">
+
+    <!-- BARRE DE NAVIGATION SUPÉRIEURE -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Logo & Marque -->
+          <div class="flex items-center space-x-3 cursor-pointer" @click="activeTab = 'recipes'">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-spice-600 to-saffron-500 flex items-center justify-center text-white shadow-md shadow-spice-500/20">
+              <i class="fa-solid fa-utensils text-lg"></i>
+            </div>
+            <div>
+              <span class="font-serif font-bold text-xl text-stone-900 tracking-tight flex items-center gap-1.5">
+                Cuisine & Recettes <span class="text-spice-600">IA</span>
+              </span>
+              <p class="text-[11px] text-stone-500 -mt-1 font-medium">Tunisienne • Marocaine • 100% Halal</p>
+            </div>
+          </div>
+
+          <!-- Onglets de Navigation Principaux -->
+          <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+            <button 
+              @click="activeTab = 'recipes'"
+              :class="activeTab === 'recipes' ? 'bg-spice-50 text-spice-700 font-semibold' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 font-medium'"
+              class="px-3.5 py-2 rounded-lg text-sm transition-all flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-spice-500"></i>
+              Recettes
+            </button>
+
+            <button 
+              @click="activeTab = 'plan'"
+              :class="activeTab === 'plan' ? 'bg-spice-50 text-spice-700 font-semibold' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 font-medium'"
+              class="px-3.5 py-2 rounded-lg text-sm transition-all flex items-center gap-2 relative">
+              <i class="fa-solid fa-calendar-days text-spice-500"></i>
+              Planificateur
+              <span v-if="plannedCount > 0" class="w-5 h-5 bg-spice-600 text-white rounded-full text-xs flex items-center justify-center font-bold">
+                {{ plannedCount }}
+              </span>
+            </button>
+
+            <button 
+              @click="activeTab = 'shopping'"
+              :class="activeTab === 'shopping' ? 'bg-spice-50 text-spice-700 font-semibold' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 font-medium'"
+              class="px-3.5 py-2 rounded-lg text-sm transition-all flex items-center gap-2 relative">
+              <i class="fa-solid fa-cart-shopping text-spice-500"></i>
+              Liste de Courses
+              <span v-if="shoppingList.itemsToBuyCount > 0" class="w-5 h-5 bg-olive-600 text-white rounded-full text-xs flex items-center justify-center font-bold">
+                {{ shoppingList.itemsToBuyCount }}
+              </span>
+            </button>
+
+            <button 
+              @click="activeTab = 'pantry'"
+              :class="activeTab === 'pantry' ? 'bg-spice-50 text-spice-700 font-semibold' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 font-medium'"
+              class="px-3.5 py-2 rounded-lg text-sm transition-all flex items-center gap-2">
+              <i class="fa-solid fa-box-archive text-spice-500"></i>
+              Mon Placard
+            </button>
+
+            <button 
+              @click="activeTab = 'preferences'"
+              :class="activeTab === 'preferences' ? 'bg-spice-50 text-spice-700 font-semibold' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 font-medium'"
+              class="px-3.5 py-2 rounded-lg text-sm transition-all flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-spice-500"></i>
+              Préférences
+            </button>
+          </nav>
+
+          <!-- Boutons Droits : Chatbot & Profil SSO -->
+          <div class="flex items-center space-x-3">
+            
+            <!-- Bouton Ouvrir Chat IA -->
+            <button 
+              @click="toggleChat"
+              :class="isChatOpen ? 'bg-spice-600 text-white' : 'bg-spice-50 text-spice-700 hover:bg-spice-100'"
+              class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2 border border-spice-200">
+              <i class="fa-solid fa-wand-magic-sparkles text-saffron-400"></i>
+              <span class="hidden sm:inline">Chef Amina IA</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </button>
+
+            <!-- Profil SSO / Connexion -->
+            <div v-if="auth.authenticated" class="relative group">
+              <div class="flex items-center gap-2.5 p-1.5 rounded-xl border border-stone-200 bg-stone-50 cursor-pointer hover:bg-stone-100 transition-colors">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-rose-500 text-white flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+                  {{ (auth.user?.name || auth.user?.email || 'U')[0] }}
+                </div>
+                <div class="hidden lg:block text-left pr-2">
+                  <div class="text-xs font-bold text-stone-800 leading-tight truncate max-w-[110px]">{{ auth.user?.name || auth.user?.email }}</div>
+                  <div class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> SSO Connecté
+                  </div>
+                </div>
+                <a :href="'/auth/logout'" title="Déconnexion SSO" class="text-stone-400 hover:text-red-600 p-1">
+                  <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                </a>
+              </div>
+            </div>
+
+            <div v-else class="flex items-center gap-2">
+              <a 
+                href="/auth/login"
+                class="px-3.5 py-2 rounded-xl bg-stone-900 text-white text-xs font-semibold hover:bg-stone-800 transition-all flex items-center gap-2 shadow-sm">
+                <i class="fa-solid fa-shield-halved text-saffron-400"></i>
+                <span>Connexion SSO</span>
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Navigation Mobile (Barre d'onglets défilante) -->
+      <div class="md:hidden flex items-center space-x-1 px-4 py-2 border-t border-stone-100 overflow-x-auto custom-scroll bg-stone-50/80">
+        <button 
+          @click="activeTab = 'recipes'"
+          :class="activeTab === 'recipes' ? 'bg-white text-spice-700 shadow-sm font-semibold' : 'text-stone-600'"
+          class="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+          <i class="fa-solid fa-book-open mr-1"></i> Recettes
+        </button>
+        <button 
+          @click="activeTab = 'plan'"
+          :class="activeTab === 'plan' ? 'bg-white text-spice-700 shadow-sm font-semibold' : 'text-stone-600'"
+          class="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+          <i class="fa-solid fa-calendar-days mr-1"></i> Planificateur
+        </button>
+        <button 
+          @click="activeTab = 'shopping'"
+          :class="activeTab === 'shopping' ? 'bg-white text-spice-700 shadow-sm font-semibold' : 'text-stone-600'"
+          class="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+          <i class="fa-solid fa-cart-shopping mr-1"></i> Courses ({{ shoppingList.itemsToBuyCount }})
+        </button>
+        <button 
+          @click="activeTab = 'pantry'"
+          :class="activeTab === 'pantry' ? 'bg-white text-spice-700 shadow-sm font-semibold' : 'text-stone-600'"
+          class="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+          <i class="fa-solid fa-box-archive mr-1"></i> Placard
+        </button>
+        <button 
+          @click="activeTab = 'preferences'"
+          :class="activeTab === 'preferences' ? 'bg-white text-spice-700 shadow-sm font-semibold' : 'text-stone-600'"
+          class="px-3 py-1.5 rounded-lg text-xs whitespace-nowrap">
+          <i class="fa-solid fa-sliders mr-1"></i> Préférences
+        </button>
+      </div>
+    </header>
+
+    <!-- CORPS PRINCIPAL & VUES -->
+    <div class="flex-1 flex overflow-hidden">
+      
+      <!-- CONTENU CENTRAL -->
+      <main class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto space-y-8">
+
+          <!-- ======================================================== -->
+          <!-- ONGLET 1 : CATALOGUE DE RECETTES & IA -->
+          <!-- ======================================================== -->
+          <section v-if="activeTab === 'recipes'" class="space-y-6">
+            
+            <!-- Bannière d'accueil & Recherche IA -->
+            <div class="bg-gradient-to-r from-stone-900 via-stone-800 to-spice-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+              <div class="absolute -right-10 -bottom-10 opacity-10 text-[200px] pointer-events-none">
+                <i class="fa-solid fa-pepper-hot"></i>
+              </div>
+
+              <div class="max-w-3xl space-y-4 relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-spice-500/20 border border-spice-400/30 text-spice-300 text-xs font-semibold">
+                  <i class="fa-solid fa-sparkles text-saffron-400"></i> Propulsé par LiteLLM & notre IA culinaire
+                </div>
+                <h1 class="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white leading-tight">
+                  Savourez l'authenticité des recettes <span class="text-spice-400">tunisiennes</span> & <span class="text-emerald-400">marocaines</span>
+                </h1>
+                <p class="text-stone-300 text-sm sm:text-base leading-relaxed">
+                  Explorez le catalogue traditionnel, planifiez vos repas pour la semaine et générez automatiquement la liste exacte de vos courses avec déduction de ce que vous avez déjà dans vos placards.
+                </p>
+
+                <!-- Barre de recherche intelligente avec IA -->
+                <div class="pt-2 flex flex-col sm:flex-row gap-2">
+                  <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"></i>
+                    <input 
+                      v-model="searchQuery" 
+                      @keyup.enter="performAISearch"
+                      type="text" 
+                      placeholder="Ex: Tajine sucré salé, Ojja merguez, repas sans viande en 25 min..." 
+                      class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-spice-400 text-sm backdrop-blur-md">
+                  </div>
+                  <button 
+                    @click="performAISearch"
+                    :disabled="isSearchingAI"
+                    class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-spice-500 to-spice-600 hover:from-spice-600 hover:to-spice-700 text-white font-semibold text-sm transition-all shadow-lg shadow-spice-600/30 flex items-center justify-center gap-2 shrink-0">
+                    <i v-if="isSearchingAI" class="fa-solid fa-spinner fa-spin"></i>
+                    <i v-else class="fa-solid fa-wand-magic-sparkles text-saffron-300"></i>
+                    <span>Recherche IA</span>
+                  </button>
+                  <button 
+                    @click="openCreateRecipeModal"
+                    class="px-5 py-3.5 rounded-2xl bg-white/15 hover:bg-white/20 text-white font-medium text-sm transition-all flex items-center justify-center gap-2 shrink-0 border border-white/10">
+                    <i class="fa-solid fa-plus text-saffron-400"></i>
+                    <span>Créer par IA</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Résultat Recommandation IA (si disponible) -->
+            <div v-if="aiSearchResult" class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-spice-800 font-bold text-sm">
+                  <i class="fa-solid fa-robot text-spice-600"></i>
+                  <span>Conseil & Recommandation de Chef Amina :</span>
+                </div>
+                <button @click="aiSearchResult = null" class="text-stone-400 hover:text-stone-600 text-xs">
+                  <i class="fa-solid fa-xmark"></i> Fermer
+                </button>
+              </div>
+              <p class="text-sm text-stone-700 italic bg-white/70 p-3 rounded-xl border border-amber-100">
+                "{{ aiSearchResult.advice }}"
+              </p>
+              <div v-if="aiSearchResult.recommendations && aiSearchResult.recommendations.length > 0" class="flex flex-wrap gap-2 pt-1">
+                <div 
+                  v-for="rec in aiSearchResult.recommendations" 
+                  :key="rec.recipeId" 
+                  @click="openRecipeById(rec.recipeId)"
+                  class="bg-white px-3 py-1.5 rounded-lg border border-amber-200 text-xs font-medium text-stone-800 hover:border-spice-500 cursor-pointer flex items-center gap-1.5 transition-all">
+                  <span class="w-2 h-2 rounded-full bg-spice-500"></span>
+                  <span>{{ getRecipeTitle(rec.recipeId) }}</span>
+                  <span class="text-[11px] text-spice-600 font-bold">({{ rec.matchScore }}%)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filtres & Catégories -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200 pb-4">
+              <!-- Filtre par Origine -->
+              <div class="flex items-center space-x-2 overflow-x-auto custom-scroll pb-1">
+                <button 
+                  @click="selectedOrigin = 'all'"
+                  :class="selectedOrigin === 'all' ? 'bg-stone-900 text-white font-semibold' : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'"
+                  class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all shadow-sm">
+                  Toutes les recettes ({{ recipes.length }})
+                </button>
+                <button 
+                  @click="selectedOrigin = 'tunisienne'"
+                  :class="selectedOrigin === 'tunisienne' ? 'bg-rose-700 text-white font-semibold' : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'"
+                  class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all shadow-sm flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> Tunisiennes
+                </button>
+                <button 
+                  @click="selectedOrigin = 'marocaine'"
+                  :class="selectedOrigin === 'marocaine' ? 'bg-emerald-700 text-white font-semibold' : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'"
+                  class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all shadow-sm flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Marocaines
+                </button>
+                <button 
+                  @click="selectedOrigin = 'moyen-orient / halal'"
+                  :class="selectedOrigin === 'moyen-orient / halal' ? 'bg-amber-700 text-white font-semibold' : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'"
+                  class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all shadow-sm flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span> Spécialités Halal
+                </button>
+              </div>
+
+              <!-- Filtre Catégorie & Tri -->
+              <div class="flex items-center gap-3">
+                <select v-model="selectedCategory" class="px-3 py-2 rounded-xl border border-stone-200 text-xs bg-white text-stone-700 font-medium focus:ring-2 focus:ring-spice-400">
+                  <option value="all">Toutes les catégories</option>
+                  <option value="Couscous & Plats Traditionnels">Couscous & Traditionnels</option>
+                  <option value="Tajines & Mijotés">Tajines & Mijotés</option>
+                  <option value="Plats Express & Poêlées">Plats Express & Poêlées</option>
+                  <option value="Soupes & Entrées">Soupes & Entrées</option>
+                  <option value="Street-Food & Grillades Halal">Street-Food & Grillades</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Grille des Recettes -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div 
+                v-for="recipe in filteredRecipes" 
+                :key="recipe.id"
+                class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+                
+                <!-- Image & Badges -->
+                <div class="relative h-48 bg-stone-100 overflow-hidden cursor-pointer" @click="viewRecipeDetails(recipe)">
+                  <img 
+                    :src="recipe.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'" 
+                    :alt="recipe.title"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                  
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80"></div>
+                  
+                  <!-- Badge Origine -->
+                  <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                    <span 
+                      :class="recipe.origin.toLowerCase().includes('tunis') ? 'badge-tunisie' : (recipe.origin.toLowerCase().includes('maroc') ? 'badge-maroc' : 'badge-halal')"
+                      class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                      {{ recipe.origin }}
+                    </span>
+                    <span class="bg-black/50 backdrop-blur-md text-white px-2 py-1 rounded-lg text-[10px] font-medium">
+                      100% Halal
+                    </span>
+                  </div>
+
+                  <!-- Niveau piquant (Piments) -->
+                  <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 text-[11px] text-white">
+                    <i class="fa-solid fa-pepper-hot text-red-400"></i>
+                    <span>{{ recipe.spiciness || 1 }}/5</span>
+                  </div>
+
+                  <!-- Temps de préparation -->
+                  <div class="absolute bottom-3 left-3 text-white text-xs font-medium flex items-center gap-3">
+                    <span><i class="fa-regular fa-clock mr-1 text-saffron-300"></i> {{ recipe.prepTime + recipe.cookTime }} min</span>
+                    <span><i class="fa-solid fa-user-group mr-1 text-saffron-300"></i> {{ recipe.defaultServings }} pers.</span>
+                  </div>
+                </div>
+
+                <!-- Contenu & Titre -->
+                <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    <div class="text-[11px] font-semibold text-spice-600 uppercase tracking-wide">{{ recipe.category }}</div>
+                    <h3 
+                      @click="viewRecipeDetails(recipe)"
+                      class="font-serif font-bold text-stone-900 text-base leading-snug hover:text-spice-600 cursor-pointer line-clamp-2 mt-0.5">
+                      {{ recipe.title }}
+                    </h3>
+                    <p class="text-xs text-stone-500 line-clamp-2 mt-1 leading-relaxed">
+                      {{ recipe.description }}
+                    </p>
+                  </div>
+
+                  <!-- Marques phares conseillées -->
+                  <div v-if="recipe.ingredients && recipe.ingredients.length > 0" class="pt-2 border-t border-stone-100">
+                    <div class="text-[10px] font-semibold text-stone-400 uppercase tracking-wider mb-1">Marques conseillées :</div>
+                    <div class="flex flex-wrap gap-1">
+                      <span 
+                        v-for="brand in getDistinctBrands(recipe).slice(0, 3)" 
+                        :key="brand"
+                        class="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-medium border border-stone-200">
+                        {{ brand }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Boutons d'action -->
+                  <div class="pt-2 flex items-center gap-2">
+                    <button 
+                      @click="viewRecipeDetails(recipe)"
+                      class="flex-1 py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5">
+                      <i class="fa-solid fa-eye"></i> Recette
+                    </button>
+                    <button 
+                      @click="openAddToPlanModal(recipe)"
+                      class="py-2 px-3 rounded-xl bg-spice-50 hover:bg-spice-100 text-spice-700 text-xs font-bold transition-all border border-spice-200 flex items-center gap-1.5"
+                      title="Ajouter au planning de la semaine">
+                      <i class="fa-solid fa-calendar-plus"></i>
+                      <span>Planifier</span>
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+            <!-- État vide -->
+            <div v-if="filteredRecipes.length === 0" class="text-center py-12 bg-white rounded-3xl border border-stone-200 p-8 space-y-4">
+              <div class="w-16 h-16 mx-auto rounded-full bg-spice-50 text-spice-500 flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-bowl-food"></i>
+              </div>
+              <h3 class="font-serif text-lg font-bold text-stone-800">Aucune recette trouvée</h3>
+              <p class="text-sm text-stone-500 max-w-md mx-auto">
+                Aucune recette ne correspond à votre filtre. Voulez-vous que notre chef IA la crée pour vous selon vos ingrédients ?
+              </p>
+              <button 
+                @click="openCreateRecipeModal"
+                class="px-5 py-2.5 rounded-xl bg-spice-600 text-white font-semibold text-xs shadow-md hover:bg-spice-700 transition-all inline-flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-saffron-300"></i> Créer cette recette par IA
+              </button>
+            </div>
+
+          </section>
+
+          <!-- ======================================================== -->
+          <!-- ONGLET 2 : PLANIFICATEUR DE REPAS (SEMAINE) -->
+          <!-- ======================================================== -->
+          <section v-if="activeTab === 'plan'" class="space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-stone-200 shadow-sm">
+              <div>
+                <h2 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <i class="fa-solid fa-calendar-days text-spice-600"></i> Planificateur de Menus Hebdomadaire
+                </h2>
+                <p class="text-xs sm:text-sm text-stone-500 mt-1">
+                  Composez vos déjeuners et dîners pour la semaine. Le nombre d'ingrédients pour vos courses s'ajuste automatiquement selon le nombre de convives.
+                </p>
+              </div>
+
+              <!-- Actions du Planning -->
+              <div class="flex items-center gap-3">
+                <button 
+                  @click="generatePlanWithAI"
+                  :disabled="isGeneratingPlan"
+                  class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-spice-600 to-spice-700 hover:from-spice-700 hover:to-spice-800 text-white text-xs font-bold transition-all shadow-md shadow-spice-600/20 flex items-center gap-2">
+                  <i v-if="isGeneratingPlan" class="fa-solid fa-spinner fa-spin"></i>
+                  <i v-else class="fa-solid fa-wand-magic-sparkles text-saffron-300"></i>
+                  <span>Générer mon menu de la semaine avec l'IA</span>
+                </button>
+
+                <button 
+                  @click="activeTab = 'shopping'"
+                  class="px-4 py-2.5 rounded-xl bg-olive-500 hover:bg-olive-600 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2">
+                  <i class="fa-solid fa-cart-shopping"></i>
+                  <span>Voir la Liste de Courses ({{ shoppingList.itemsToBuyCount }})</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Grille des Jours de la Semaine -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+              <div 
+                v-for="dayName in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']" 
+                :key="dayName"
+                :class="dayName === 'vendredi' ? 'border-amber-300 ring-2 ring-amber-200/50 bg-gradient-to-b from-amber-50/50 to-white' : 'border-stone-200 bg-white'"
+                class="rounded-2xl border p-4 shadow-sm flex flex-col justify-between space-y-4">
+                
+                <!-- En-tête du Jour -->
+                <div class="flex items-center justify-between border-b border-stone-100 pb-2.5">
+                  <span class="font-serif font-bold text-sm text-stone-900 capitalize flex items-center gap-1.5">
+                    {{ dayName }}
+                    <span v-if="dayName === 'vendredi'" class="text-[10px] text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded font-sans font-bold">Couscous</span>
+                  </span>
+                  <span class="text-[11px] text-stone-400 font-medium">Midi & Soir</span>
+                </div>
+
+                <!-- Repas du Midi -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-stone-500 uppercase tracking-wider">
+                    <span><i class="fa-regular fa-sun text-amber-500 mr-1"></i> Déjeuner</span>
+                    <span v-if="mealPlan.days[dayName]?.midi" class="text-spice-600 font-semibold">
+                      {{ mealPlan.days[dayName].midi.servings }} pers.
+                    </span>
+                  </div>
+
+                  <div 
+                    v-if="mealPlan.days[dayName]?.midi" 
+                    class="bg-stone-50 border border-stone-200 rounded-xl p-2.5 relative group hover:border-spice-300 transition-colors">
+                    <div class="text-xs font-bold text-stone-900 line-clamp-1">
+                      {{ getRecipeTitle(mealPlan.days[dayName].midi.recipeId) }}
+                    </div>
+                    <div class="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
+                      <span>{{ getRecipeOrigin(mealPlan.days[dayName].midi.recipeId) }}</span>
+                    </div>
+                    <!-- Bouton supprimer -->
+                    <button 
+                      @click="removeMeal(dayName, 'midi')" 
+                      class="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-80 group-hover:opacity-100 text-xs">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+
+                  <button 
+                    v-else 
+                    @click="openSelectRecipeModal(dayName, 'midi')"
+                    class="w-full py-3 rounded-xl border border-dashed border-stone-300 hover:border-spice-400 text-stone-400 hover:text-spice-600 text-xs font-medium transition-all flex items-center justify-center gap-1 bg-stone-50/50">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Choisir recette
+                  </button>
+                </div>
+
+                <!-- Repas du Soir -->
+                <div class="space-y-1.5 pt-2 border-t border-stone-100">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-stone-500 uppercase tracking-wider">
+                    <span><i class="fa-solid fa-moon text-indigo-500 mr-1"></i> Dîner</span>
+                    <span v-if="mealPlan.days[dayName]?.soir" class="text-spice-600 font-semibold">
+                      {{ mealPlan.days[dayName].soir.servings }} pers.
+                    </span>
+                  </div>
+
+                  <div 
+                    v-if="mealPlan.days[dayName]?.soir" 
+                    class="bg-stone-50 border border-stone-200 rounded-xl p-2.5 relative group hover:border-spice-300 transition-colors">
+                    <div class="text-xs font-bold text-stone-900 line-clamp-1">
+                      {{ getRecipeTitle(mealPlan.days[dayName].soir.recipeId) }}
+                    </div>
+                    <div class="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
+                      <span>{{ getRecipeOrigin(mealPlan.days[dayName].soir.recipeId) }}</span>
+                    </div>
+                    <!-- Bouton supprimer -->
+                    <button 
+                      @click="removeMeal(dayName, 'soir')" 
+                      class="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-80 group-hover:opacity-100 text-xs">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+
+                  <button 
+                    v-else 
+                    @click="openSelectRecipeModal(dayName, 'soir')"
+                    class="w-full py-3 rounded-xl border border-dashed border-stone-300 hover:border-spice-400 text-stone-400 hover:text-spice-600 text-xs font-medium transition-all flex items-center justify-center gap-1 bg-stone-50/50">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Choisir recette
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </section>
+
+          <!-- ======================================================== -->
+          <!-- ONGLET 3 : LISTE DE COURSES INTELLIGENTE & PLACARD -->
+          <!-- ======================================================== -->
+          <section v-if="activeTab === 'shopping'" class="space-y-6">
+            
+            <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <i class="fa-solid fa-cart-shopping text-olive-600"></i> Liste de Courses Consolidée
+                </h2>
+                <p class="text-xs sm:text-sm text-stone-500 mt-1">
+                  Les ingrédients de vos <strong>{{ shoppingList.totalPlannedMeals }} repas planifiés</strong> sont regroupés, avec déduction automatique de ce que vous avez déjà dans votre placard.
+                </p>
+              </div>
+
+              <!-- Boutons Exporter & Copier -->
+              <div class="flex items-center gap-2.5">
+                <button 
+                  @click="copyShoppingListToClipboard"
+                  class="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition-all flex items-center gap-2">
+                  <i class="fa-regular fa-copy"></i>
+                  <span>Copier (WhatsApp / SMS)</span>
+                </button>
+                <button 
+                  @click="activeTab = 'pantry'"
+                  class="px-4 py-2.5 rounded-xl bg-spice-50 hover:bg-spice-100 text-spice-700 text-xs font-bold transition-all border border-spice-200 flex items-center gap-2">
+                  <i class="fa-solid fa-box-archive"></i>
+                  <span>Ajuster mon Placard</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Métriques Courses -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                  <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div>
+                  <div class="text-2xl font-bold text-stone-900">{{ shoppingList.itemsCount || 0 }}</div>
+                  <div class="text-xs text-stone-500 font-medium">Ingrédients nécessaires au total</div>
+                </div>
+              </div>
+
+              <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-olive-50 text-olive-600 flex items-center justify-center text-xl font-bold">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                  <div class="text-2xl font-bold text-stone-900">{{ shoppingList.itemsInStockCount || 0 }}</div>
+                  <div class="text-xs text-stone-500 font-medium">Déjà en stock dans votre placard (0€)</div>
+                </div>
+              </div>
+
+              <div class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl font-bold">
+                  <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+                <div>
+                  <div class="text-2xl font-bold text-stone-900">{{ shoppingList.itemsToBuyCount || 0 }}</div>
+                  <div class="text-xs text-stone-500 font-medium">Reste net à acheter au magasin</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Liste des Rayons -->
+            <div v-if="shoppingList.groupedByCategory && Object.keys(shoppingList.groupedByCategory).length > 0" class="space-y-6">
+              <div 
+                v-for="(items, categoryName) in shoppingList.groupedByCategory" 
+                :key="categoryName"
+                class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+                
+                <div class="bg-stone-50/80 px-6 py-3.5 border-b border-stone-200 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-spice-500"></span>
+                    <h3 class="font-serif font-bold text-sm text-stone-900">{{ categoryName }}</h3>
+                    <span class="text-xs text-stone-400 font-medium">({{ items.length }} articles)</span>
+                  </div>
+                </div>
+
+                <div class="divide-y divide-stone-100">
+                  <div 
+                    v-for="item in items" 
+                    :key="item.name"
+                    class="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/50 transition-colors">
+                    
+                    <div class="flex items-start sm:items-center gap-3">
+                      <!-- Case à cocher -->
+                      <input 
+                        type="checkbox" 
+                        v-model="item.checked"
+                        class="w-5 h-5 rounded border-stone-300 text-spice-600 focus:ring-spice-500 mt-0.5 sm:mt-0 cursor-pointer">
+                      
+                      <div>
+                        <div 
+                          :class="item.checked ? 'line-through text-stone-400' : 'text-stone-900 font-semibold'"
+                          class="text-sm">
+                          {{ item.name }}
+                        </div>
+                        <div class="text-xs text-stone-400 flex items-center gap-2 mt-0.5">
+                          <span>Pour : {{ item.recipes.join(', ') }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Quantités & Reste à acheter -->
+                    <div class="flex items-center gap-4 sm:justify-end pl-8 sm:pl-0">
+                      
+                      <!-- Marque conseillée -->
+                      <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[11px] font-semibold border border-amber-200/60 whitespace-nowrap">
+                        <i class="fa-solid fa-tag text-saffron-500 mr-1"></i> {{ item.recommendedBrand }}
+                      </span>
+
+                      <!-- En stock vs À acheter -->
+                      <div class="text-right whitespace-nowrap">
+                        <div v-if="item.toBuyQuantity > 0" class="text-sm font-bold text-rose-700">
+                          À acheter : {{ item.toBuyQuantity }} {{ item.unit }}
+                        </div>
+                        <div v-else class="text-sm font-bold text-emerald-600 flex items-center gap-1">
+                          <i class="fa-solid fa-check"></i> En stock (0 à acheter)
+                        </div>
+
+                        <div v-if="item.inStockQuantity > 0" class="text-[11px] text-stone-400">
+                          (En stock : {{ item.inStockQuantity }} {{ item.unit }} / Besoin : {{ item.requiredQuantity }})
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Si aucun repas planifié -->
+            <div v-else class="text-center py-12 bg-white rounded-3xl border border-stone-200 p-8 space-y-4">
+              <div class="w-16 h-16 mx-auto rounded-full bg-olive-50 text-olive-600 flex items-center justify-center text-2xl">
+                <i class="fa-solid fa-cart-arrow-down"></i>
+              </div>
+              <h3 class="font-serif text-lg font-bold text-stone-800">Aucun ingrédient à acheter pour l'instant</h3>
+              <p class="text-sm text-stone-500 max-w-md mx-auto">
+                Commencez par planifier quelques recettes dans l'onglet <strong>Planificateur</strong> ou laissez notre IA composer votre semaine !
+              </p>
+              <button 
+                @click="activeTab = 'plan'"
+                class="px-5 py-2.5 rounded-xl bg-spice-600 text-white font-semibold text-xs shadow-md hover:bg-spice-700 transition-all inline-flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days"></i> Ouvrir le Planificateur
+              </button>
+            </div>
+
+          </section>
+
+          <!-- ======================================================== -->
+          <!-- ONGLET 4 : MON PLACARD (STOCK EXISTANT) -->
+          <!-- ======================================================== -->
+          <section v-if="activeTab === 'pantry'" class="space-y-6">
+            
+            <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <i class="fa-solid fa-box-archive text-spice-600"></i> Mon Placard & Ingrédients en Stock
+                </h2>
+                <p class="text-xs sm:text-sm text-stone-500 mt-1">
+                  Déclarez ce que vous avez déjà chez vous (huile d'olive, harissa, semoule, épices, etc.). Ces quantités seront automatiquement soustraites de votre liste de courses pour éviter les achats en double.
+                </p>
+              </div>
+
+              <button 
+                @click="openAddPantryModal"
+                class="px-4 py-2.5 rounded-xl bg-spice-600 hover:bg-spice-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i>
+                <span>Ajouter un ingrédient en stock</span>
+              </button>
+            </div>
+
+            <!-- Grille des articles du placard -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div 
+                v-for="item in pantryItems" 
+                :key="item.id"
+                class="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center justify-between hover:border-spice-300 transition-all">
+                <div class="space-y-1">
+                  <div class="text-xs font-semibold text-stone-400 uppercase tracking-wider">{{ item.category }}</div>
+                  <div class="text-sm font-bold text-stone-900">{{ item.name }}</div>
+                  <div class="text-xs text-spice-600 font-medium">
+                    Quantité en réserve : <span class="font-bold text-stone-900">{{ item.quantity }} {{ item.unit }}</span>
+                  </div>
+                  <div v-if="item.brand" class="text-[11px] text-stone-400">
+                    Marque : <span class="font-medium text-stone-600">{{ item.brand }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button 
+                    @click="editPantryItem(item)"
+                    class="p-2 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 text-xs">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button 
+                    @click="deletePantryItem(item.id)"
+                    class="p-2 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 text-xs">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- ======================================================== -->
+          <!-- ONGLET 5 : PRÉFÉRENCES & PROFIL IA -->
+          <!-- ======================================================== -->
+          <section v-if="activeTab === 'preferences'" class="space-y-6">
+            
+            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm max-w-3xl space-y-6">
+              <div>
+                <h2 class="font-serif text-2xl font-bold text-stone-900 flex items-center gap-2">
+                  <i class="fa-solid fa-sliders text-spice-600"></i> Vos Préférences Culinaires & Profil IA
+                </h2>
+                <p class="text-xs sm:text-sm text-stone-500 mt-1">
+                  Notre IA capture vos goûts, vos envies et vos marques de référence pour personnaliser les recettes et les courses.
+                </p>
+              </div>
+
+              <!-- Cuisines favorites -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Cuisines Favorites</label>
+                <div class="flex flex-wrap gap-2">
+                  <button 
+                    v-for="c in ['Tunisienne', 'Marocaine', 'Halal Orientale', 'Méditerranéenne']" 
+                    :key="c"
+                    @click="togglePreferenceCuisine(c)"
+                    :class="preferences.favoriteCuisines?.includes(c) ? 'bg-spice-600 text-white font-bold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
+                    class="px-4 py-2 rounded-xl text-xs transition-all">
+                    {{ c }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tolérance au Piment (Harissa / Piments) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Niveau de Piquant Souhaité</label>
+                  <span class="text-xs font-bold text-spice-600">{{ preferences.spicinessPreference }}/5 ({{ getSpicinessLabel(preferences.spicinessPreference) }})</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="5" 
+                  v-model.number="preferences.spicinessPreference" 
+                  class="w-full accent-spice-600 cursor-pointer">
+                <div class="flex justify-between text-[11px] text-stone-400">
+                  <span>1 (Très doux)</span>
+                  <span>3 (Équilibré)</span>
+                  <span>5 (Harissa du Cap Bon corsée)</span>
+                </div>
+              </div>
+
+              <!-- Marques favorites -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Marques Favorites de l'Écosystème</label>
+                <p class="text-xs text-stone-400">Les marques qui seront privilégiées dans vos listes de courses.</p>
+                <div class="flex flex-wrap gap-2">
+                  <span 
+                    v-for="b in preferences.favoriteBrands" 
+                    :key="b"
+                    class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200 flex items-center gap-1.5">
+                    {{ b }}
+                    <i @click="removeFavoriteBrand(b)" class="fa-solid fa-xmark cursor-pointer text-amber-500 hover:text-amber-800"></i>
+                  </span>
+                </div>
+                <div class="flex gap-2 pt-1">
+                  <input 
+                    v-model="newBrandInput" 
+                    @keyup.enter="addFavoriteBrand"
+                    type="text" 
+                    placeholder="Ajouter une marque (ex: Dari, Sicam...)" 
+                    class="flex-1 px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-2 focus:ring-spice-400">
+                  <button 
+                    @click="addFavoriteBrand"
+                    class="px-4 py-2 bg-stone-900 text-white rounded-xl text-xs font-semibold hover:bg-stone-800">
+                    Ajouter
+                  </button>
+                </div>
+              </div>
+
+              <!-- Notes & Envies -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Notes et Envies Particulières</label>
+                <textarea 
+                  v-model="preferences.notes" 
+                  rows="3" 
+                  placeholder="Ex: Famille de 4 personnes, préférence pour l'agneau le vendredi, éviter les produits trop salés..." 
+                  class="w-full p-3 rounded-xl border border-stone-200 text-xs focus:ring-2 focus:ring-spice-400 text-stone-800"></textarea>
+              </div>
+
+              <button 
+                @click="saveUserPreferences" 
+                class="px-6 py-3 rounded-xl bg-spice-600 hover:bg-spice-700 text-white font-bold text-xs shadow-md transition-all">
+                Enregistrer mes préférences
+              </button>
+            </div>
+
+          </section>
+
+        </div>
+      </main>
+
+      <!-- ======================================================== -->
+      <!-- VOLET LATÉRAL : ASSISTANT CHATBOT CHEF AMINA IA -->
+      <!-- ======================================================== -->
+      <aside 
+        v-if="isChatOpen" 
+        class="w-full sm:w-96 border-l border-stone-200 bg-white flex flex-col h-full shadow-2xl z-40 shrink-0">
+        
+        <!-- En-tête du Chat -->
+        <div class="p-4 border-b border-stone-200 flex items-center justify-between bg-stone-50">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-spice-600 to-saffron-500 flex items-center justify-center text-white shadow-md">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+              <div class="font-serif font-bold text-sm text-stone-900 flex items-center gap-1.5">
+                Chef Amina IA
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              </div>
+              <div class="text-[11px] text-stone-400">Conseils culinaires & Prise en main</div>
+            </div>
+          </div>
+          <button @click="isChatOpen = false" class="text-stone-400 hover:text-stone-700 p-1.5 rounded-lg hover:bg-stone-200/50">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Messages -->
+        <div ref="chatContainer" class="flex-1 overflow-y-auto custom-scroll p-4 space-y-4">
+          <div 
+            v-for="msg in chatMessages" 
+            :key="msg.id"
+            :class="msg.sender === 'user' ? 'justify-end' : 'justify-start'"
+            class="flex items-start gap-2.5">
+            
+            <div v-if="msg.sender === 'ai'" class="w-7 h-7 rounded-lg bg-spice-100 text-spice-700 flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="fa-solid fa-hat-chef"></i>
+            </div>
+
+            <div 
+              :class="msg.sender === 'user' ? 'bg-spice-600 text-white rounded-2xl rounded-tr-none' : 'bg-stone-100 text-stone-800 rounded-2xl rounded-tl-none border border-stone-200/70'"
+              class="p-3 text-xs leading-relaxed max-w-[85%] whitespace-pre-wrap">
+              {{ msg.text }}
+            </div>
+          </div>
+
+          <div v-if="isTypingChat" class="flex items-center gap-2 text-stone-400 text-xs italic pl-9">
+            <i class="fa-solid fa-spinner fa-spin"></i> Chef Amina réfléchit...
+          </div>
+        </div>
+
+        <!-- Suggestions rapides -->
+        <div class="px-4 py-2 border-t border-stone-100 flex items-center gap-1.5 overflow-x-auto custom-scroll bg-stone-50/50">
+          <button 
+            @click="sendQuickPrompt('Comment utiliser l\'application ?')" 
+            class="px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-stone-600 text-[11px] whitespace-nowrap hover:bg-stone-100">
+            Comment utiliser l'app ?
+          </button>
+          <button 
+            @click="sendQuickPrompt('Astuce pour réussir la vapeur du couscous ?')" 
+            class="px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-stone-600 text-[11px] whitespace-nowrap hover:bg-stone-100">
+            Astuce cuisson couscous
+          </button>
+          <button 
+            @click="sendQuickPrompt('Idée de repas tunisien rapide pour ce soir')" 
+            class="px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-stone-600 text-[11px] whitespace-nowrap hover:bg-stone-100">
+            Idée dîner rapide
+          </button>
+        </div>
+
+        <!-- Zone de Saisie -->
+        <div class="p-3 border-t border-stone-200 bg-white">
+          <form @submit.prevent="sendChatMessage" class="flex items-center gap-2">
+            <input 
+              v-model="chatInput" 
+              type="text" 
+              placeholder="Posez votre question culinaire..." 
+              class="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs focus:ring-2 focus:ring-spice-400 text-stone-800 bg-stone-50">
+            <button 
+              type="submit" 
+              :disabled="!chatInput.trim() || isTypingChat"
+              class="w-9 h-9 rounded-xl bg-spice-600 hover:bg-spice-700 disabled:opacity-50 text-white flex items-center justify-center text-xs shadow-md transition-all shrink-0">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+
+      </aside>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL : DÉTAILS D'UNE RECETTE -->
+    <!-- ======================================================== -->
+    <div v-if="selectedRecipeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scroll shadow-2xl border border-stone-200 flex flex-col">
+        
+        <!-- Image & En-tête -->
+        <div class="relative h-64 bg-stone-100 shrink-0">
+          <img :src="selectedRecipeModal.image" :alt="selectedRecipeModal.title" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+          
+          <button @click="selectedRecipeModal = null" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <div class="absolute bottom-4 left-4 right-4 text-white">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase bg-spice-600">{{ selectedRecipeModal.origin }}</span>
+            <h2 class="font-serif text-2xl font-bold mt-1 text-white">{{ selectedRecipeModal.title }}</h2>
+          </div>
+        </div>
+
+        <!-- Contenu Détaillé -->
+        <div class="p-6 space-y-6 flex-1">
+          
+          <!-- Infos clés & Ajustement des portions -->
+          <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-stone-50 border border-stone-200">
+            <div class="flex items-center gap-4 text-xs font-semibold text-stone-700">
+              <span><i class="fa-regular fa-clock text-spice-600 mr-1"></i> Prépa : {{ selectedRecipeModal.prepTime }} min</span>
+              <span><i class="fa-solid fa-fire-burner text-spice-600 mr-1"></i> Cuisson : {{ selectedRecipeModal.cookTime }} min</span>
+              <span><i class="fa-solid fa-pepper-hot text-red-500 mr-1"></i> Piquant : {{ selectedRecipeModal.spiciness }}/5</span>
+            </div>
+
+            <!-- Sélecteur Portions -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-stone-500 font-medium">Pour :</span>
+              <button @click="adjustRecipeServings(-1)" class="w-7 h-7 rounded-lg bg-white border border-stone-300 flex items-center justify-center text-xs font-bold hover:bg-stone-100">-</button>
+              <span class="font-bold text-sm text-stone-900 w-8 text-center">{{ modalServings }}</span>
+              <button @click="adjustRecipeServings(1)" class="w-7 h-7 rounded-lg bg-white border border-stone-300 flex items-center justify-center text-xs font-bold hover:bg-stone-100">+</button>
+              <span class="text-xs text-stone-500 font-medium">pers.</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <p class="text-xs sm:text-sm text-stone-600 leading-relaxed italic">
+            {{ selectedRecipeModal.description }}
+          </p>
+
+          <!-- Ingrédients avec quantités recalculées et marques -->
+          <div class="space-y-3">
+            <h4 class="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
+              <i class="fa-solid fa-carrot text-spice-600"></i> Ingrédients requis pour {{ modalServings }} personnes :
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div 
+                v-for="ing in selectedRecipeModal.ingredients" 
+                :key="ing.name"
+                class="p-2.5 rounded-xl bg-stone-50 border border-stone-200/80 flex items-center justify-between text-xs">
+                <div>
+                  <span class="font-semibold text-stone-900">{{ ing.name }}</span>
+                  <div v-if="ing.recommendedBrand" class="text-[10px] text-amber-700 font-medium">
+                    Marque : {{ ing.recommendedBrand }}
+                  </div>
+                </div>
+                <div class="font-bold text-spice-700 whitespace-nowrap pl-2">
+                  {{ Math.round((ing.quantityPerServing * modalServings) * 10) / 10 }} {{ ing.unit }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions de préparation -->
+          <div class="space-y-3">
+            <h4 class="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
+              <i class="fa-solid fa-list-ol text-spice-600"></i> Étapes de Préparation :
+            </h4>
+            <ol class="space-y-2.5">
+              <li 
+                v-for="(step, idx) in selectedRecipeModal.instructions" 
+                :key="idx"
+                class="flex items-start gap-3 text-xs leading-relaxed text-stone-700">
+                <span class="w-5 h-5 rounded-full bg-spice-100 text-spice-700 font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                  {{ idx + 1 }}
+                </span>
+                <span>{{ step }}</span>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Astuce du chef -->
+          <div v-if="selectedRecipeModal.tips" class="p-4 rounded-2xl bg-amber-50 border border-amber-200/70 text-xs text-amber-900 space-y-1">
+            <div class="font-bold flex items-center gap-1.5 text-amber-800">
+              <i class="fa-solid fa-lightbulb text-saffron-500"></i> Astuce de grand-mère :
+            </div>
+            <p>{{ selectedRecipeModal.tips }}</p>
+          </div>
+
+          <!-- Actions du Modal -->
+          <div class="pt-4 border-t border-stone-200 flex items-center justify-end gap-3">
+            <button 
+              @click="selectedRecipeModal = null" 
+              class="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 text-xs font-semibold hover:bg-stone-50">
+              Fermer
+            </button>
+            <button 
+              @click="openAddToPlanModal(selectedRecipeModal); selectedRecipeModal = null" 
+              class="px-5 py-2.5 rounded-xl bg-spice-600 hover:bg-spice-700 text-white text-xs font-bold shadow-md flex items-center gap-2">
+              <i class="fa-solid fa-calendar-plus"></i> Ajouter au Planning
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL : AJOUTER AU PLANNING DE LA SEMAINE -->
+    <!-- ======================================================== -->
+    <div v-if="addToPlanModalRecipe" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-5">
+        <h3 class="font-serif font-bold text-lg text-stone-900">
+          Planifier : {{ addToPlanModalRecipe.title }}
+        </h3>
+
+        <!-- Choix du Jour -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Jour de la semaine :</label>
+          <select v-model="targetPlanDay" class="w-full p-2.5 rounded-xl border border-stone-200 text-xs bg-white capitalize">
+            <option v-for="d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']" :key="d" :value="d">
+              {{ d }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Choix du Repas (Midi / Soir) -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Moment :</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button 
+              @click="targetPlanMealType = 'midi'"
+              :class="targetPlanMealType === 'midi' ? 'bg-amber-500 text-white font-bold' : 'bg-stone-100 text-stone-700'"
+              class="py-2 rounded-xl text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-regular fa-sun"></i> Déjeuner (Midi)
+            </button>
+            <button 
+              @click="targetPlanMealType = 'soir'"
+              :class="targetPlanMealType === 'soir' ? 'bg-indigo-600 text-white font-bold' : 'bg-stone-100 text-stone-700'"
+              class="py-2 rounded-xl text-xs flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-moon"></i> Dîner (Soir)
+            </button>
+          </div>
+        </div>
+
+        <!-- Nombre de Convives -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-stone-700 uppercase tracking-wider">Nombre de personnes :</label>
+          <div class="flex items-center gap-3">
+            <input 
+              type="number" 
+              min="1" 
+              max="20" 
+              v-model.number="targetPlanServings" 
+              class="w-24 p-2 rounded-xl border border-stone-200 text-sm font-bold text-center">
+            <span class="text-xs text-stone-500 font-medium">personnes à table</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-stone-100 flex items-center justify-end gap-2">
+          <button @click="addToPlanModalRecipe = null" class="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600">Annuler</button>
+          <button @click="confirmAddToPlan" class="px-5 py-2.5 rounded-xl bg-spice-600 text-white text-xs font-bold hover:bg-spice-700">Confirmer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL : SÉLECTIONNER RECETTE DEPUIS LE PLANNING -->
+    <!-- ======================================================== -->
+    <div v-if="selectRecipeModalTarget" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[80vh] flex flex-col p-6 shadow-2xl border border-stone-200 space-y-4">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 class="font-serif font-bold text-base text-stone-900 capitalize">
+            Choisir pour {{ selectRecipeModalTarget.day }} ({{ selectRecipeModalTarget.mealType }})
+          </h3>
+          <button @click="selectRecipeModalTarget = null" class="text-stone-400 hover:text-stone-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1">
+          <div 
+            v-for="r in recipes" 
+            :key="r.id"
+            @click="assignRecipeToPlanSlot(r.id)"
+            class="p-3 rounded-2xl border border-stone-200 hover:border-spice-500 hover:bg-spice-50/50 cursor-pointer transition-all flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-stone-900">{{ r.title }}</div>
+              <div class="text-[11px] text-stone-500">{{ r.origin }} • {{ r.prepTime + r.cookTime }} min</div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-stone-400 text-xs"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL : CRÉER UNE RECETTE SUR MESURE PAR L'IA -->
+    <!-- ======================================================== -->
+    <div v-if="isCreateRecipeModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-5">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 class="font-serif font-bold text-lg text-stone-900 flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-spice-600"></i> Créer une Recette sur Mesure par l'IA
+          </h3>
+          <button @click="isCreateRecipeModalOpen = false" class="text-stone-400 hover:text-stone-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <p class="text-xs text-stone-500">
+          Décrivez votre envie, vos ingrédients disponibles dans le réfrigérateur, ou le plat dont vous rêvez. Notre IA concevra la recette complète avec les étapes et les ingrédients calibrés.
+        </p>
+
+        <textarea 
+          v-model="aiCreateRecipePrompt" 
+          rows="4" 
+          placeholder="Ex: Tajine de lotte aux citrons confits et safran pour 4 personnes, Tajine tunisien végétarien aux épinards et ricotta..." 
+          class="w-full p-3.5 rounded-2xl border border-stone-200 text-xs focus:ring-2 focus:ring-spice-400 text-stone-800"></textarea>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button @click="isCreateRecipeModalOpen = false" class="px-4 py-2 text-xs font-semibold text-stone-600">Annuler</button>
+          <button 
+            @click="submitGenerateRecipeAI"
+            :disabled="isGeneratingCustomRecipe || !aiCreateRecipePrompt.trim()"
+            class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-spice-600 to-spice-700 text-white text-xs font-bold shadow-md hover:from-spice-700 hover:to-spice-800 flex items-center gap-2">
+            <i v-if="isGeneratingCustomRecipe" class="fa-solid fa-spinner fa-spin"></i>
+            <i v-else class="fa-solid fa-sparkles text-saffron-300"></i>
+            <span>Générer la Recette</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL : AJOUTER UN ARTICLE AU PLACARD -->
+    <!-- ======================================================== -->
+    <div v-if="isAddPantryModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 class="font-serif font-bold text-base text-stone-900">
+            {{ pantryForm.id ? 'Modifier l\'article en stock' : 'Ajouter un ingrédient à mon placard' }}
+          </h3>
+          <button @click="isAddPantryModalOpen = false" class="text-stone-400 hover:text-stone-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="font-bold text-stone-700 block mb-1">Nom de l'ingrédient :</label>
+            <input v-model="pantryForm.name" type="text" placeholder="Ex: Semoule de couscous moyen" class="w-full p-2.5 rounded-xl border border-stone-200">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-bold text-stone-700 block mb-1">Quantité en stock :</label>
+              <input v-model.number="pantryForm.quantity" type="number" min="0" step="any" class="w-full p-2.5 rounded-xl border border-stone-200">
+            </div>
+            <div>
+              <label class="font-bold text-stone-700 block mb-1">Unité :</label>
+              <select v-model="pantryForm.unit" class="w-full p-2.5 rounded-xl border border-stone-200 bg-white">
+                <option value="g">g (grammes)</option>
+                <option value="kg">kg (kilos)</option>
+                <option value="ml">ml (millilitres)</option>
+                <option value="pièce">pièce</option>
+                <option value="c. à soupe">c. à soupe</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="font-bold text-stone-700 block mb-1">Catégorie / Rayon :</label>
+            <select v-model="pantryForm.category" class="w-full p-2.5 rounded-xl border border-stone-200 bg-white">
+              <option value="Épicerie & Féculents">Épicerie & Féculents</option>
+              <option value="Épices & Condiments">Épices & Condiments</option>
+              <option value="Huiles & Condiments">Huiles & Condiments</option>
+              <option value="Boucherie Halal">Boucherie Halal</option>
+              <option value="Primeur (Légumes & Fruits)">Primeur (Légumes & Fruits)</option>
+              <option value="Frais & Crèmerie">Frais & Crèmerie</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-bold text-stone-700 block mb-1">Marque (facultatif) :</label>
+            <input v-model="pantryForm.brand" type="text" placeholder="Ex: Dari, Le Phare du Cap Bon..." class="w-full p-2.5 rounded-xl border border-stone-200">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-100">
+          <button @click="isAddPantryModalOpen = false" class="px-4 py-2 text-xs font-semibold text-stone-600">Annuler</button>
+          <button @click="savePantryItemForm" class="px-5 py-2.5 rounded-xl bg-spice-600 text-white text-xs font-bold hover:bg-spice-700">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- APPLICATION VUE 3 CLIENT-SIDE JAVASCRIPT -->
+  <script src="/app.js"></script>
+</body>
+</html>

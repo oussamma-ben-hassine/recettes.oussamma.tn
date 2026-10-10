@@ -1,0 +1,30 @@
+{
+  "name": "recettes-oussamma-tn",
+  "version": "1.0.0",
+  "description": "Application de Recettes Tunisiennes, Marocaines & Halal avec Assistant IA LiteLLM, Planificateur de Repas et Liste de Courses Intelligente",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cookie-session": "^2.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "keywords": [
+    "recettes",
+    "cuisine-tunisienne",
+    "cuisine-marocaine",
+    "halal",
+    "litellm",
+    "ai",
+    "meal-planner",
+    "liste-courses",
+    "sso"
+  ],
+  "author": "Oussama Ben Hassine",
+  "license": "MIT"
+}
