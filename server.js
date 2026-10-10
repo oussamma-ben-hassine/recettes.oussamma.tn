@@ -97,6 +97,20 @@ function getUserId(req) {
 }
 
 // =============================================================================
+// MIDDLEWARE DE SÉCURITÉ : AUTHENTIFICATION SSO OBLIGATOIRE
+// =============================================================================
+function requireAuth(req, res, next) {
+  if (!req.session?.user) {
+    return res.status(401).json({
+      error: 'unauthorized',
+      message: 'Authentification SSO requise pour accéder à cette ressource.',
+      loginUrl: '/auth/login'
+    });
+  }
+  next();
+}
+
+// =============================================================================
 // HEALTHCHECK
 // =============================================================================
 app.get(['/health', '/api/health'], (req, res) => {
@@ -104,7 +118,7 @@ app.get(['/health', '/api/health'], (req, res) => {
 });
 
 // =============================================================================
-// AUTHENTIFICATION SSO
+// AUTHENTIFICATION SSO (OIDC)
 // =============================================================================
 app.get('/auth/login', (req, res) => {
   const { state, code_verifier, code_challenge } = generateOidcStateAndPKCE();
@@ -189,18 +203,6 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Connexion d'appoint / Invité pour tests ou session directe
-app.post('/api/auth/guest-login', (req, res) => {
-  const { name } = req.body;
-  req.session.user = {
-    id: 'user_invité',
-    name: name || 'Gourmet Invité',
-    email: 'invite@oussamma.tn',
-    isGuest: true
-  };
-  res.json({ success: true, user: req.session.user });
-});
-
 app.get('/api/auth/me', (req, res) => {
   res.json({
     authenticated: !!req.session?.user,
@@ -215,9 +217,9 @@ app.get('/auth/logout', (req, res) => {
 });
 
 // =============================================================================
-// API RECETTES
+// API RECETTES (PROTÉGÉES PAR AUTH SSO)
 // =============================================================================
-app.get('/api/recipes', (req, res) => {
+app.get('/api/recipes', requireAuth, (req, res) => {
   const { q, origin, category, maxTime } = req.query;
   let list = Storage.getRecipes();
 
@@ -243,7 +245,7 @@ app.get('/api/recipes', (req, res) => {
   res.json(list);
 });
 
-app.get('/api/recipes/:id', (req, res) => {
+app.get('/api/recipes/:id', requireAuth, (req, res) => {
   const recipe = Storage.getRecipeById(req.params.id);
   if (!recipe) {
     return res.status(404).json({ error: 'Recette introuvable' });
@@ -251,7 +253,7 @@ app.get('/api/recipes/:id', (req, res) => {
   res.json(recipe);
 });
 
-app.post('/api/recipes', (req, res) => {
+app.post('/api/recipes', requireAuth, (req, res) => {
   try {
     const saved = Storage.saveRecipe(req.body);
     res.status(201).json(saved);
@@ -260,15 +262,69 @@ app.post('/api/recipes', (req, res) => {
   }
 });
 
-app.delete('/api/recipes/:id', (req, res) => {
+app.delete('/api/recipes/:id', requireAuth, (req, res) => {
   Storage.deleteRecipe(req.params.id);
   res.json({ success: true });
 });
 
 // =============================================================================
+// API FAVORIS (PLATS PRÉFÉRÉS)
+// =============================================================================
+app.get('/api/favorites', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const favs = Storage.getFavorites(userId);
+  res.json(favs);
+});
+
+app.post('/api/favorites/toggle', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const { recipeId } = req.body;
+  if (!recipeId) return res.status(400).json({ error: 'recipeId requis' });
+  const updated = Storage.toggleFavorite(userId, recipeId);
+  res.json(updated);
+});
+
+// Lancer et générer un planning hebdomadaire complet à partir des plats préférés
+app.post('/api/favorites/plan-week', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const favIds = Storage.getFavorites(userId);
+  const allRecipes = Storage.getRecipes();
+  const favRecipes = allRecipes.filter(r => favIds.includes(r.id));
+
+  if (favRecipes.length === 0) {
+    return res.status(400).json({ error: 'Aucun plat préféré dans votre liste de favoris' });
+  }
+
+  const daysList = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+  const plan = Storage.getMealPlan(userId);
+  let favIndex = 0;
+
+  for (const day of daysList) {
+    const recipeMidi = favRecipes[favIndex % favRecipes.length];
+    plan.days[day].midi = {
+      recipeId: recipeMidi.id,
+      servings: plan.defaultServings || 4
+    };
+    favIndex++;
+
+    if (favRecipes.length > 1) {
+      const recipeSoir = favRecipes[favIndex % favRecipes.length];
+      plan.days[day].soir = {
+        recipeId: recipeSoir.id,
+        servings: plan.defaultServings || 4
+      };
+      favIndex++;
+    }
+  }
+
+  const saved = Storage.saveMealPlan(userId, plan);
+  res.json({ success: true, plan: saved });
+});
+
+// =============================================================================
 // API IA LITELLM
 // =============================================================================
-app.post('/api/ai/search', async (req, res) => {
+app.post('/api/ai/search', requireAuth, async (req, res) => {
   try {
     const { query } = req.body;
     if (!query) return res.status(400).json({ error: 'Requête requise' });
@@ -285,7 +341,7 @@ app.post('/api/ai/search', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-recipe', async (req, res) => {
+app.post('/api/ai/generate-recipe', requireAuth, async (req, res) => {
   try {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'Prompt requis' });
@@ -294,7 +350,6 @@ app.post('/api/ai/generate-recipe', async (req, res) => {
     const prefs = Storage.getPreferences(userId);
 
     const generated = await AIService.generateRecipe(prompt, prefs);
-    // Sauvegarder automatiquement dans le catalogue
     Storage.saveRecipe(generated);
 
     res.json(generated);
@@ -304,7 +359,7 @@ app.post('/api/ai/generate-recipe', async (req, res) => {
   }
 });
 
-app.post('/api/ai/generate-plan', async (req, res) => {
+app.post('/api/ai/generate-plan', requireAuth, async (req, res) => {
   try {
     const userId = getUserId(req);
     const { servings } = req.body;
@@ -324,22 +379,21 @@ app.post('/api/ai/generate-plan', async (req, res) => {
 // =============================================================================
 // API PLANNING DE REPAS
 // =============================================================================
-app.get('/api/plan', (req, res) => {
+app.get('/api/plan', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const plan = Storage.getMealPlan(userId);
   res.json(plan);
 });
 
-app.post('/api/plan', (req, res) => {
+app.post('/api/plan', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const saved = Storage.saveMealPlan(userId, req.body);
   res.json(saved);
 });
 
-// Assigner ou enlever une recette d'un jour précis
-app.post('/api/plan/set-meal', (req, res) => {
+app.post('/api/plan/set-meal', requireAuth, (req, res) => {
   const userId = getUserId(req);
-  const { day, mealType, recipeId, servings } = req.body; // mealType: 'midi' | 'soir'
+  const { day, mealType, recipeId, servings } = req.body;
 
   const plan = Storage.getMealPlan(userId);
   if (!plan.days[day]) plan.days[day] = { midi: null, soir: null };
@@ -360,19 +414,19 @@ app.post('/api/plan/set-meal', (req, res) => {
 // =============================================================================
 // API PANTRY (PLACARD & STOCKS EXISTANTS)
 // =============================================================================
-app.get('/api/pantry', (req, res) => {
+app.get('/api/pantry', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const items = Storage.getPantry(userId);
   res.json(items);
 });
 
-app.post('/api/pantry', (req, res) => {
+app.post('/api/pantry', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const updated = Storage.updatePantryItem(userId, req.body);
   res.json(updated);
 });
 
-app.delete('/api/pantry/:id', (req, res) => {
+app.delete('/api/pantry/:id', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const updated = Storage.removePantryItem(userId, req.params.id);
   res.json(updated);
@@ -381,7 +435,7 @@ app.delete('/api/pantry/:id', (req, res) => {
 // =============================================================================
 // API LISTE DE COURSES INTELLIGENTE
 // =============================================================================
-app.get('/api/shopping-list', (req, res) => {
+app.get('/api/shopping-list', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const list = calculateShoppingList(userId);
   res.json(list);
@@ -390,30 +444,30 @@ app.get('/api/shopping-list', (req, res) => {
 // =============================================================================
 // API PRÉFÉRENCES & PROFIL IA
 // =============================================================================
-app.get('/api/preferences', (req, res) => {
+app.get('/api/preferences', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const prefs = Storage.getPreferences(userId);
   res.json(prefs);
 });
 
-app.post('/api/preferences', (req, res) => {
+app.post('/api/preferences', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const saved = Storage.savePreferences(userId, req.body);
   res.json(saved);
 });
 
 // =============================================================================
-// API CHATBOT CULINAIRE LATÉRAL
+// API CHATBOT CULINAIRE LATÉRAL MULTILINGUE
 // =============================================================================
-app.get('/api/chat', (req, res) => {
+app.get('/api/chat', requireAuth, (req, res) => {
   const userId = getUserId(req);
   const history = Storage.getChatHistory(userId);
   res.json(history);
 });
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', requireAuth, async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, lang } = req.body;
     if (!message) return res.status(400).json({ error: 'Message requis' });
 
     const userId = getUserId(req);
@@ -423,7 +477,6 @@ app.post('/api/chat', async (req, res) => {
     const prefs = Storage.getPreferences(userId);
     const allRecipes = Storage.getRecipes();
 
-    // 1. Ajouter le message utilisateur
     const userMsg = {
       id: `msg_u_${Date.now()}`,
       sender: 'user',
@@ -432,7 +485,6 @@ app.post('/api/chat', async (req, res) => {
     };
     history.push(userMsg);
 
-    // 2. Contexte pour l'IA
     let plannedMealsCount = 0;
     if (plan && plan.days) {
       for (const d of Object.values(plan.days)) {
@@ -448,8 +500,7 @@ app.post('/api/chat', async (req, res) => {
       favoriteBrands: prefs.favoriteBrands || []
     };
 
-    // 3. Appel IA
-    const replyText = await AIService.chatChef(message, history, context);
+    const replyText = await AIService.chatChef(message, history, context, lang || 'fr');
 
     const aiMsg = {
       id: `msg_ai_${Date.now()}`,
@@ -459,7 +510,6 @@ app.post('/api/chat', async (req, res) => {
     };
     history.push(aiMsg);
 
-    // Sauvegarder l'historique
     Storage.saveChatHistory(userId, history);
 
     res.json({ reply: aiMsg, history });
@@ -487,5 +537,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   - Local  : http://localhost:${PORT}`);
   console.log(`   - Public : ${APP_URL}`);
   console.log(`   - SSO    : ${SSO_BASE_URL} (${SSO_CLIENT_ID})`);
+  console.log(`   - Auth Wall : Connexion SSO obligatoire active`);
   console.log(`=======================================================`);
 });

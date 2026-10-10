@@ -15,6 +15,7 @@ const RECIPES_FILE = path.join(DATA_DIR, 'recipes.json');
 const PLANS_FILE = path.join(DATA_DIR, 'meal_plans.json');
 const PANTRY_FILE = path.join(DATA_DIR, 'pantry.json');
 const PREFERENCES_FILE = path.join(DATA_DIR, 'preferences.json');
+const FAVORITES_FILE = path.join(DATA_DIR, 'favorites.json');
 const CHAT_FILE = path.join(DATA_DIR, 'chats.json');
 
 function readJsonFile(filePath, defaultValue) {
@@ -170,6 +171,25 @@ export const Storage = {
     all[userId] = { ...prefs, updatedAt: new Date().toISOString() };
     writeJsonFile(PREFERENCES_FILE, all);
     return all[userId];
+  },
+
+  // --- FAVORIS (PLATS PRÉFÉRÉS) ---
+  getFavorites(userId = 'default') {
+    const all = readJsonFile(FAVORITES_FILE, {});
+    return all[userId] || [];
+  },
+
+  toggleFavorite(userId = 'default', recipeId) {
+    const all = readJsonFile(FAVORITES_FILE, {});
+    let userFavs = all[userId] || [];
+    if (userFavs.includes(recipeId)) {
+      userFavs = userFavs.filter(id => id !== recipeId);
+    } else {
+      userFavs.push(recipeId);
+    }
+    all[userId] = userFavs;
+    writeJsonFile(FAVORITES_FILE, all);
+    return userFavs;
   },
 
   // --- HISTORIQUE CHAT ---
