@@ -359,6 +359,26 @@ app.post('/api/ai/generate-recipe', requireAuth, async (req, res) => {
   }
 });
 
+app.post('/api/ai/import-web-recipe', requireAuth, async (req, res) => {
+  try {
+    const { queryOrUrl } = req.body;
+    if (!queryOrUrl || !queryOrUrl.trim()) {
+      return res.status(400).json({ error: 'Lien web (URL) ou nom de plat requis' });
+    }
+
+    const userId = getUserId(req);
+    const prefs = Storage.getPreferences(userId);
+
+    const recipe = await AIService.importFromWeb(queryOrUrl, prefs);
+    Storage.saveRecipe(recipe);
+
+    res.json({ success: true, recipe });
+  } catch (err) {
+    console.error('Erreur API AI Import Web Recipe:', err);
+    res.status(500).json({ error: err.message || 'Erreur lors de l’importation depuis le web' });
+  }
+});
+
 app.post('/api/ai/generate-plan', requireAuth, async (req, res) => {
   try {
     const userId = getUserId(req);

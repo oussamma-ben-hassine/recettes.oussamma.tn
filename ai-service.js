@@ -268,5 +268,201 @@ ${langInstruction}`;
 
     const reply = await callLiteLLM(formattedMessages, { temperature: 0.7 });
     return reply;
+  },
+
+  // 5. Recherche Web & Extraction de Recette (Gratuit & Universel)
+  async importFromWeb(queryOrUrl, preferences = {}) {
+    const trimmed = (queryOrUrl || '').trim();
+    const isUrl = /^https?:\/\//i.test(trimmed);
+
+    if (isUrl) {
+      // Extraction directe depuis l'URL fournie (Marmiton, 750g, blogs, etc.)
+      const pageData = await fetchWebPageContent(trimmed);
+
+      const systemPrompt = `Tu es un grand chef cuisinier expert en gastronomie tunisienne, marocaine et cuisine orientale halal.
+Tu viens de recevoir le texte extrait d'une page web de recette (URL: ${trimmed}).
+Titre extrait de la page : "${pageData.title || ''}".
+Image extraite : "${pageData.image || ''}".
+
+Analyse fidèlement la recette décrite dans ce texte et structure-la dans le format JSON strict de notre catalogue.
+Règles impératives :
+1. Si les ingrédients sont indiqués pour un nombre de personnes (ex: 4 ou 6), calcule précisément les quantités par personne (quantityPerServing).
+2. Catégorise chaque ingrédient ("Boucherie Halal", "Épicerie & Féculents", "Primeur (Légumes & Fruits)", "Épices & Condiments", "Frais & Crèmerie", "Huiles & Condiments").
+3. Si la recette utilise de la semoule, harissa, tomate concentrée, huile d'olive, propose les marques recommandées correspondantes de notre écosystème : "Dari", "Le Phare du Cap Bon", "Sicam", "Terra Delyssa", "Sidi Daoud", "Randa".
+4. Si une image valide a été extraite ("${pageData.image || ''}"), utilise-la dans le champ "image", sinon utilise une belle URL photo Unsplash adaptée.
+5. Détermine l'origine : "Tunisienne", "Marocaine" ou "Halal".
+
+Réponds EN JSON STRICT avec la structure exacte suivante :
+{
+  "title": "Nom précis de la recette",
+  "origin": "Tunisienne" ou "Marocaine" ou "Halal",
+  "category": "Couscous & Plats Traditionnels" ou "Tajines & Mijotés" ou "Plats Express & Poêlées" ou "Soupes & Entrées" ou "Street-Food & Grillades Halal",
+  "difficulty": "Facile" ou "Moyen" ou "Difficile",
+  "prepTime": 20,
+  "cookTime": 45,
+  "defaultServings": 4,
+  "spiciness": 3,
+  "emoji": "🍲",
+  "image": "URL de l'image",
+  "description": "Courte description fidèle au plat et à la tradition culinaire",
+  "sourceUrl": "${trimmed}",
+  "source": "Web Import",
+  "ingredients": [
+    {
+      "name": "Nom de l'ingrédient",
+      "quantityPerServing": 100,
+      "unit": "g" ou "ml" ou "pièce" ou "c. à soupe",
+      "category": "Catégorie",
+      "recommendedBrand": "Marque recommandée ou vide",
+      "notes": "Précision facultative"
+    }
+  ],
+  "instructions": [
+    "Étape 1...",
+    "Étape 2..."
+  ],
+  "tips": "Astuce secrète de chef pour réussir la recette",
+  "tags": ["Import Web", "Traditionnel", "Halal"],
+  "nutritionPerServing": {
+    "calories": 520,
+    "protein": 30,
+    "carbs": 60,
+    "fat": 16
+  }
+}`;
+
+      const raw = await callLiteLLM([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Voici le texte extrait de la page web à analyser :\n\n${pageData.cleanText}` }
+      ], { jsonMode: true });
+
+      const recipe = JSON.parse(raw);
+      recipe.id = `rec_web_${Date.now()}`;
+      if (pageData.image && (!recipe.image || recipe.image.includes('unsplash.com/photo-1541518763669'))) {
+        recipe.image = pageData.image;
+      }
+      recipe.sourceUrl = trimmed;
+      recipe.source = 'Web Import';
+      recipe.createdAt = new Date().toISOString();
+      return recipe;
+    } else {
+      // Recherche Web par mots-clés ou nom de plat
+      const systemPrompt = `Tu es un chef cuisinier de renom connecté aux connaissances culinaires mondiales et du web pour la cuisine maghrébine (Tunisie, Maroc, Algérie) et halal.
+L'utilisateur souhaite rechercher et importer la recette la plus authentique et réputée sur le web pour : "${trimmed}".
+Tu dois synthétiser et formater la version la plus fidèle, savoureuse et plébiscitée de ce plat traditionnel.
+
+Marques recommandées de l'écosystème :
+- Semoule / Couscous : "Dari" ou "Diari"
+- Concentré de tomate : "Sicam"
+- Harissa : "Le Phare du Cap Bon"
+- Huile d'olive : "Terra Delyssa"
+- Thon : "Sidi Daoud"
+
+Réponds EN JSON STRICT avec la structure exacte suivante :
+{
+  "title": "Nom authentique du plat",
+  "origin": "Tunisienne" ou "Marocaine" ou "Halal",
+  "category": "Couscous & Plats Traditionnels" ou "Tajines & Mijotés" ou "Plats Express & Poêlées" ou "Soupes & Entrées" ou "Street-Food & Grillades Halal",
+  "difficulty": "Facile" ou "Moyen" ou "Difficile",
+  "prepTime": 25,
+  "cookTime": 50,
+  "defaultServings": 4,
+  "spiciness": 3,
+  "emoji": "🍲",
+  "image": "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=800&q=80",
+  "description": "Description alléchante de la recette traditionnelle du plat...",
+  "source": "Recherche Web IA",
+  "ingredients": [
+    {
+      "name": "Nom de l'ingrédient",
+      "quantityPerServing": 100,
+      "unit": "g" ou "ml" ou "pièce" ou "c. à soupe",
+      "category": "Boucherie Halal" ou "Épicerie & Féculents" ou "Primeur (Légumes & Fruits)" ou "Épices & Condiments" ou "Frais & Crèmerie" ou "Huiles & Condiments",
+      "recommendedBrand": "Marque recommandée",
+      "notes": "Précision"
+    }
+  ],
+  "instructions": [
+    "Étape 1...",
+    "Étape 2..."
+  ],
+  "tips": "Astuce traditionnelle pour réussir le plat",
+  "tags": ["Recherche Web", "Authentique", "Halal"],
+  "nutritionPerServing": {
+    "calories": 550,
+    "protein": 32,
+    "carbs": 65,
+    "fat": 18
+  }
+}`;
+
+      const raw = await callLiteLLM([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Recherche et génère la recette du web pour : ${trimmed}` }
+      ], { jsonMode: true });
+
+      const recipe = JSON.parse(raw);
+      recipe.id = `rec_web_${Date.now()}`;
+      recipe.source = 'Recherche Web IA';
+      recipe.createdAt = new Date().toISOString();
+      return recipe;
+    }
   }
 };
+
+async function fetchWebPageContent(url) {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'fr-FR,fr;q=0.9,ar;q=0.8,en;q=0.7'
+      },
+      signal: AbortSignal.timeout(15000),
+      redirect: 'follow'
+    });
+
+    if (!res.ok) {
+      throw new Error(`Erreur HTTP ${res.status} lors de l'accès à la page`);
+    }
+
+    const html = await res.text();
+
+    // Extraire og:image ou twitter:image si disponible
+    let image = null;
+    const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+                    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) ||
+                    html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
+    if (ogMatch && ogMatch[1]) {
+      image = ogMatch[1].trim();
+    }
+
+    // Extraire la balise <title>
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : '';
+
+    // Nettoyer le HTML pour ne garder que le contenu textuel
+    let cleanText = html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+      .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, ' ')
+      .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, ' ')
+      .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, ' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    cleanText = cleanText.substring(0, 12000);
+
+    return { title, image, cleanText };
+  } catch (err) {
+    console.error('Erreur fetchWebPageContent:', err.message);
+    throw new Error(`Impossible de récupérer le contenu de la page web : ${err.message}`);
+  }
+}
+

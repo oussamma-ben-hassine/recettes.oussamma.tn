@@ -151,6 +151,17 @@ const translations = {
     aiCreatePlaceholder: "Ex: Tajine de lotte aux citrons confits et safran, Tajine tunisien aux épinards...",
     btnGenerateRecipeSubmit: "Générer la Recette",
 
+    // Web Import modal (Gratuit)
+    btnImportWeb: "🌐 Importer du Web",
+    webImportModalTitle: "Importer une Recette depuis le Web",
+    webImportModalDesc: "Collez un lien (URL) de recette (Marmiton, 750g, blog culinaire...) OU tapez le nom d'un plat traditionnel. Notre IA extrait la recette, calibre les ingrédients et l'ajoute directement à votre catalogue. 100% gratuit !",
+    webImportPlaceholder: "Ex: https://www.marmiton.org/... OU Couscous au mérou sfaxien",
+    webImportSubmit: "Lancer la recherche & Importer",
+    webImportSuccessMsg: "Recette importée avec succès du Web !",
+    webImportErrorNotice: "Impossible d'importer la recette. Vérifiez le lien ou le nom saisi.",
+    sourceWebBadge: "🌐 Source Web",
+    btnViewImportedRecipe: "Voir la recette importée",
+
     // Chatbot
     chatAminaTitle: "Chef Amina IA",
     chatAminaStatus: "Conseils culinaires & Prise en main",
@@ -310,6 +321,17 @@ const translations = {
     aiCreateModalDesc: "صف المكونات المتوفرة لديك في الثلاجة أو فكرة الطبق الذي ترغب به:",
     aiCreatePlaceholder: "مثال: طاجين سمك بالليمون المخلل والزعفران، طاجين تونسي بالسبانخ والجبن...",
     btnGenerateRecipeSubmit: "توليد الوصفة بالـ AI",
+
+    // Web Import modal (Gratuit)
+    btnImportWeb: "🌐 استيراد من الويب",
+    webImportModalTitle: "استيراد وصفة من الإنترنت مجاناً",
+    webImportModalDesc: "ألصق رابط صفحة وصفة (Marmiton أو أي مدونة طبخ) أو اكتب اسم أي طبق تقليدي. سيقوم الذكاء الاصطناعي باستخراج المقادير وتنسيقها وإضافتها فوراً لكتاب وصفاتك مجاناً!",
+    webImportPlaceholder: "مثال: https://... أو كسكسي بالمناني الصفاقسي",
+    webImportSubmit: "بحث واستيراد الوصفة",
+    webImportSuccessMsg: "تم استيراد الوصفة وإضافتها بنجاح!",
+    webImportErrorNotice: "تعذر استيراد الوصفة، يرجى التحقق من الرابط أو اسم الطبق.",
+    sourceWebBadge: "🌐 مصدر من الويب",
+    btnViewImportedRecipe: "عرض الوصفة المستوردة",
 
     // Chatbot
     chatAminaTitle: "الشيف أمينة (ذكاء اصطناعي)",
@@ -471,6 +493,17 @@ const translations = {
     aiCreatePlaceholder: "E.g., Monkfish tagine with preserved lemons and saffron, Tunisian spinach & cheese tagine...",
     btnGenerateRecipeSubmit: "Generate Recipe",
 
+    // Web Import modal (Gratuit)
+    btnImportWeb: "🌐 Import from Web",
+    webImportModalTitle: "Import Recipe from the Web for Free",
+    webImportModalDesc: "Paste any recipe URL (Marmiton, 750g, cooking blogs...) OR type the name of a traditional dish. Our AI extracts instructions, scales ingredients, and adds it to your catalog for free!",
+    webImportPlaceholder: "E.g.: https://... OR Authentic Moroccan Lamb Tajine",
+    webImportSubmit: "Search & Import Recipe",
+    webImportSuccessMsg: "Recipe successfully imported from the Web!",
+    webImportErrorNotice: "Failed to import recipe. Please verify the URL or dish name.",
+    sourceWebBadge: "🌐 Web Source",
+    btnViewImportedRecipe: "View Imported Recipe",
+
     // Chatbot
     chatAminaTitle: "Chef Amina AI",
     chatAminaStatus: "Cooking advice & app guide",
@@ -560,6 +593,13 @@ createApp({
       isCreateRecipeModalOpen: false,
       aiCreateRecipePrompt: '',
       isGeneratingCustomRecipe: false,
+
+      // Modal Import Web (Gratuit)
+      isImportWebModalOpen: false,
+      webImportInput: '',
+      isImportingWeb: false,
+      webImportError: '',
+      webImportSuccessRecipe: null,
 
       isAddPantryModalOpen: false,
       pantryForm: {
@@ -1133,6 +1173,54 @@ createApp({
         alert(this.currentLang === 'ar' ? 'حدث خطأ أثناء ابتكار الوصفة، يرجى المحاولة ثانية.' : 'Une erreur est survenue lors de la création de la recette.');
       } finally {
         this.isGeneratingCustomRecipe = false;
+      }
+    },
+
+    // --- IMPORTATION & RECHERCHE DE RECETTES SUR LE WEB (GRATUIT) ---
+    openImportWebModal() {
+      this.webImportInput = '';
+      this.webImportError = '';
+      this.webImportSuccessRecipe = null;
+      this.isImportWebModalOpen = true;
+    },
+
+    closeImportWebModal() {
+      this.isImportWebModalOpen = false;
+    },
+
+    async submitImportWeb() {
+      if (!this.webImportInput.trim()) return;
+      this.isImportingWeb = true;
+      this.webImportError = '';
+      this.webImportSuccessRecipe = null;
+
+      try {
+        const res = await fetch('/api/ai/import-web-recipe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ queryOrUrl: this.webImportInput })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Erreur lors de l’importation de la recette.');
+        }
+
+        this.webImportSuccessRecipe = data.recipe;
+        await this.fetchRecipes();
+      } catch (err) {
+        console.error('Erreur import web:', err);
+        this.webImportError = err.message || this.t.webImportErrorNotice;
+      } finally {
+        this.isImportingWeb = false;
+      }
+    },
+
+    viewImportedRecipe() {
+      if (this.webImportSuccessRecipe) {
+        const r = this.webImportSuccessRecipe;
+        this.isImportWebModalOpen = false;
+        this.viewRecipeDetails(r);
       }
     },
 
