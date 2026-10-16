@@ -1,5 +1,38 @@
 export const initialRecipes = [
   {
+    id: "rec_tun_couscous_merou",
+    title: "Couscous au Mérou",
+    origin: "Tunisienne",
+    region: "Mahdia",
+    category: "Couscous & Plats Traditionnels",
+    difficulty: "Facile",
+    rating: 4.9,
+    prepTime: 15,
+    cookTime: 30,
+    defaultServings: 4,
+    spiciness: 3,
+    emoji: "🐟",
+    image: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&w=800&q=80",
+    description: "Le somptueux couscous au poisson des côtes tunisiennes de Mahdia : mérou fondant, piments frits, légumes de saison et semoule parfumée au cumin et bouillon de poisson.",
+    ingredients: [
+      { name: "Mérou frais", quantityPerServing: 200, unit: "g", category: "Boucherie & Poissonnerie", recommendedBrand: "Pêche du jour", notes: "Darnes épaisses" },
+      { name: "Semoule fine Dari", quantityPerServing: 125, unit: "g", category: "Épicerie & Féculents", recommendedBrand: "Dari", notes: "Semoule fine" },
+      { name: "Huile d'olive vierge", quantityPerServing: 15, unit: "ml", category: "Huiles & Condiments", recommendedBrand: "Terra Delyssa", notes: "Première pression" },
+      { name: "Harissa Cap Bon", quantityPerServing: 0.5, unit: "c. à soupe", category: "Épices & Condiments", recommendedBrand: "Le Phare du Cap Bon", notes: "Selon goût" },
+      { name: "Concentré Sicam", quantityPerServing: 0.75, unit: "c. à soupe", category: "Épicerie & Féculents", recommendedBrand: "Sicam", notes: "Double concentré" },
+      { name: "Courgettes & Carottes", quantityPerServing: 100, unit: "g", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Coupées en tronçons" },
+      { name: "Piments & Pois chiches", quantityPerServing: 37.5, unit: "g", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Piments verts et pois chiches" }
+    ],
+    instructions: [
+      "Dorer l'oignon, la Sicam et l'harissa avec les légumes coupés (15 min).",
+      "Mouiller d'eau chaude, pocher le mérou puis cuire la semoule à la vapeur (20 min).",
+      "Imprégner le couscous de sauce rouge et dresser les darnes au sommet (10 min)."
+    ],
+    tips: "Arrosez les grains d'un filet de bouillon bouillant 5 min avant de servir pour une semoule ultra-fondante.",
+    tags: ["Tunisien", "Mahdia", "Halal", "Poisson", "Tradition", "Couscous"],
+    nutritionPerServing: { calories: 620, protein: 44, carbs: 68, fat: 16 }
+  },
+  {
     id: "rec_tun_couscous_agneau",
     title: "Couscous Tunisien Authentique à l'Agneau",
     origin: "Tunisienne",

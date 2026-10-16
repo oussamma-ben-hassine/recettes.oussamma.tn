@@ -48,7 +48,15 @@ if (!fs.existsSync(RECIPES_FILE)) {
 export const Storage = {
   // --- RECETTES ---
   getRecipes() {
-    return readJsonFile(RECIPES_FILE, initialRecipes);
+    let list = readJsonFile(RECIPES_FILE, initialRecipes);
+    // Assurer la présence des recettes clés comme le Couscous au Mérou
+    for (const initR of initialRecipes) {
+      if (!list.some(r => r.id === initR.id)) {
+        list.unshift(initR);
+        writeJsonFile(RECIPES_FILE, list);
+      }
+    }
+    return list;
   },
 
   getRecipeById(id) {

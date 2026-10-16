@@ -609,7 +609,15 @@ createApp({
         unit: 'g',
         category: 'Épicerie & Féculents',
         brand: ''
-      }
+      },
+
+      // Stitch Design State
+      currentFilter: 'all', // 'all', 'tunisie', 'maroc', 'express', 'favoris'
+      shoppingSubTab: 'list', // 'list' or 'pantry'
+      checkedShoppingItems: JSON.parse(localStorage.getItem('checked_shopping_items') || '[]'),
+      newShoppingItemInput: '',
+      activePlanningDay: 'lundi',
+      selectedWeekLabel: '12 - 18 Mai'
     };
   },
 
@@ -625,17 +633,19 @@ createApp({
     filteredRecipes() {
       let list = this.recipes;
 
-      // Filtre favoris
-      if (this.showOnlyFavorites) {
+      // Filtre Stitch chips
+      if (this.currentFilter === 'favoris') {
         list = list.filter(r => this.favoriteIds.includes(r.id));
+      } else if (this.currentFilter === 'tunisie') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('tunis'));
+      } else if (this.currentFilter === 'maroc') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('maroc'));
+      } else if (this.currentFilter === 'express') {
+        list = list.filter(r => (r.prepTime + r.cookTime) <= 35 || (r.category || '').toLowerCase().includes('express'));
       }
 
-      if (this.selectedOrigin && this.selectedOrigin !== 'all') {
-        list = list.filter(r => r.origin.toLowerCase() === this.selectedOrigin.toLowerCase());
-      }
-
-      if (this.selectedCategory && this.selectedCategory !== 'all') {
-        list = list.filter(r => r.category.toLowerCase() === this.selectedCategory.toLowerCase());
+      if (this.showOnlyFavorites && this.currentFilter !== 'favoris') {
+        list = list.filter(r => this.favoriteIds.includes(r.id));
       }
 
       if (this.searchQuery && !this.aiSearchResult) {
@@ -648,6 +658,60 @@ createApp({
       }
 
       return list;
+    },
+
+    shoppingCategorizedItems() {
+      const categories = {
+        'Boucherie & Poissonnerie': { icon: 'fa-solid fa-fish', emoji: '🐟', items: [] },
+        'Épicerie & Féculents': { icon: 'fa-solid fa-wheat-awn', emoji: '🌾', items: [] },
+        'Épices & Condiments': { icon: 'fa-solid fa-pepper-hot', emoji: '🌶', items: [] },
+        'Primeur': { icon: 'fa-solid fa-carrot', emoji: '🥦', items: [] },
+        'Frais & Crèmerie': { icon: 'fa-solid fa-egg', emoji: '🧀', items: [] },
+        'Huiles & Condiments': { icon: 'fa-solid fa-bottle-droplet', emoji: '🫒', items: [] },
+      };
+
+      const allItems = this.shoppingList?.items || [];
+      for (const item of allItems) {
+        let cat = item.category || 'Épicerie & Féculents';
+        if (cat.toLowerCase().includes('boucherie') || cat.toLowerCase().includes('poisson') || cat.toLowerCase().includes('viande') || cat.toLowerCase().includes('merguez')) {
+          categories['Boucherie & Poissonnerie'].items.push(item);
+        } else if (cat.toLowerCase().includes('épices') || cat.toLowerCase().includes('condiment') || cat.toLowerCase().includes('harissa') || cat.toLowerCase().includes('tabel')) {
+          categories['Épices & Condiments'].items.push(item);
+        } else if (cat.toLowerCase().includes('primeur') || cat.toLowerCase().includes('légume') || cat.toLowerCase().includes('fruit') || cat.toLowerCase().includes('piment')) {
+          categories['Primeur'].items.push(item);
+        } else if (cat.toLowerCase().includes('frais') || cat.toLowerCase().includes('crèmerie') || cat.toLowerCase().includes('œuf') || cat.toLowerCase().includes('fromage')) {
+          categories['Frais & Crèmerie'].items.push(item);
+        } else if (cat.toLowerCase().includes('huile')) {
+          categories['Huiles & Condiments'].items.push(item);
+        } else {
+          categories['Épicerie & Féculents'].items.push(item);
+        }
+      }
+
+      return Object.entries(categories)
+        .filter(([_, data]) => data.items.length > 0)
+        .map(([name, data]) => ({
+          name,
+          icon: data.icon,
+          emoji: data.emoji,
+          count: data.items.length,
+          items: data.items
+        }));
+    },
+
+    shoppingCheckedCount() {
+      const allItems = this.shoppingList?.items || [];
+      return allItems.filter(i => this.checkedShoppingItems.includes(i.name)).length;
+    },
+
+    shoppingProgressPercent() {
+      const total = this.shoppingList?.items?.length || 0;
+      if (total === 0) return 0;
+      return Math.round((this.shoppingCheckedCount / total) * 100);
+    },
+
+    missingTotalItemsCount() {
+      return this.shoppingList?.itemsToBuyCount || (this.shoppingList?.items?.length || 3);
     },
 
     plannedCount() {
@@ -1278,6 +1342,100 @@ createApp({
       if (container) {
         container.scrollTop = container.scrollHeight;
       }
+    },
+
+    // --- GOOGLE STITCH DESIGN HELPERS ---
+    setFilter(key) {
+      this.currentFilter = key;
+    },
+
+    isIngredientInStock(name) {
+      if (!name) return false;
+      const n = name.toLowerCase().trim();
+      return this.pantryItems.some(p => {
+        const pn = (p.name || '').toLowerCase().trim();
+        return pn.includes(n) || n.includes(pn);
+      });
+    },
+
+    getMissingCount(recipe, servings = 4) {
+      if (!recipe || !recipe.ingredients) return 0;
+      return recipe.ingredients.filter(ing => !this.isIngredientInStock(ing.name)).length;
+    },
+
+    async addMissingToShopping(recipe) {
+      if (!recipe) return;
+      // Ajoute la recette au prochain slot de repas ou confirme les ingrédients
+      await this.assignRecipeToPlanSlot(recipe.id);
+      this.activeTab = 'shopping';
+      this.shoppingSubTab = 'list';
+    },
+
+    toggleShoppingCheck(itemName) {
+      const idx = this.checkedShoppingItems.indexOf(itemName);
+      if (idx >= 0) {
+        this.checkedShoppingItems.splice(idx, 1);
+      } else {
+        this.checkedShoppingItems.push(itemName);
+      }
+      localStorage.setItem('checked_shopping_items', JSON.stringify(this.checkedShoppingItems));
+    },
+
+    isShoppingItemChecked(itemName) {
+      return this.checkedShoppingItems.includes(itemName);
+    },
+
+    async addQuickShoppingItem() {
+      const val = this.newShoppingItemInput.trim();
+      if (!val) return;
+      try {
+        await fetch('/api/pantry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: val,
+            quantity: 1,
+            unit: 'pièce',
+            category: 'Épicerie & Féculents'
+          })
+        });
+        this.newShoppingItemInput = '';
+        await this.fetchPantry();
+        await this.fetchShoppingList();
+      } catch (e) {
+        console.error('Erreur ajout article rapide:', e);
+      }
+    },
+
+    copyShoppingListForShare() {
+      if (!this.shoppingList?.items?.length) return;
+      let text = `🛒 *Liste de courses (recettes.oussamma.tn)*\n`;
+      text += `📅 Semaine ${this.selectedWeekLabel}\n\n`;
+      for (const item of this.shoppingList.items) {
+        const status = this.isShoppingItemChecked(item.name) ? '✅' : '⬜';
+        text += `${status} ${item.name} : ${item.toBuy} ${item.unit} ${item.recommendedBrand ? `(${item.recommendedBrand})` : ''}\n`;
+      }
+      navigator.clipboard.writeText(text);
+      alert(this.t.listCopiedAlert || 'Liste copiée pour WhatsApp !');
+    },
+
+    openRecipeDetails(recipe) {
+      this.selectedRecipeModal = recipe;
+      this.modalServings = recipe.defaultServings || 4;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    closeRecipeDetails() {
+      this.selectedRecipeModal = null;
+    },
+
+    openSwapMeal(day, mealType) {
+      this.selectRecipeModalTarget = { day, mealType };
+    },
+
+    getRecipeById(id) {
+      if (!id) return null;
+      return this.recipes.find(r => r.id === id) || null;
     }
   }
 }).mount('#app');
