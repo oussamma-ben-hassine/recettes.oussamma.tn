@@ -627,6 +627,17 @@
               </a>
             </div>
 
+            <!-- Action Supprimer Recette -->
+            <div class="pt-2 flex items-center justify-between border-t border-stone-100">
+              <span class="text-[11px] text-stone-400">ID: {{ selectedRecipeModal.id }}</span>
+              <button 
+                @click="deleteRecipeConfirm(selectedRecipeModal.id)"
+                class="px-3.5 py-2 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+                <span>{{ t.btnDeleteRecipe || 'Supprimer la Recette' }}</span>
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -658,9 +669,17 @@
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs font-semibold text-stone-500">
                 <span>Panier</span>
-                <div class="flex items-center gap-3">
-                  <span>{{ shoppingCheckedCount }} / {{ shoppingList.items?.length || 11 }} achetés</span>
-                  <div class="flex items-center gap-2 text-stone-400">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px]">{{ shoppingCheckedCount }}/{{ shoppingList.items?.length || 0 }}</span>
+                  <button 
+                    v-if="shoppingCheckedCount > 0"
+                    @click="resetCheckedShoppingItems" 
+                    :title="t.btnClearShoppingChecks" 
+                    class="text-[10px] font-bold text-stone-500 hover:text-stone-800 px-1.5 py-0.5 rounded bg-stone-100 flex items-center gap-1 transition-all">
+                    <i class="fa-solid fa-square-check text-[9px]"></i>
+                    <span>{{ t.btnClearShoppingChecks || 'Décocher' }}</span>
+                  </button>
+                  <div class="flex items-center gap-2 text-stone-400 pl-1">
                     <button @click="copyShoppingListForShare" title="Partager sur WhatsApp" class="hover:text-stone-800"><i class="fa-solid fa-share-nodes"></i></button>
                     <button @click="copyShoppingListForShare" title="Copier" class="hover:text-stone-800"><i class="fa-regular fa-copy"></i></button>
                     <button @click="fetchShoppingList" title="Actualiser" class="hover:text-stone-800"><i class="fa-solid fa-arrows-rotate"></i></button>
@@ -786,11 +805,21 @@
 
             <div class="flex items-center justify-between pt-1">
               <span class="text-xs font-bold text-stone-600">Stocks Déclarés chez vous ({{ pantryItems.length }})</span>
-              <button 
-                @click="openAddPantryModal" 
-                class="px-3 py-1.5 rounded-full bg-[#9E2A2B] text-white font-bold text-xs shadow-sm flex items-center gap-1">
-                <i class="fa-solid fa-plus text-[10px]"></i> Ajouter
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button 
+                  v-if="pantryItems.length > 0"
+                  @click="clearPantryConfirm('empty')" 
+                  class="px-2.5 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold text-[11px] flex items-center gap-1 transition-all"
+                  :title="t.btnClearPantry || 'Vider le placard'">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i>
+                  <span>{{ t.btnQuickClearPantry || 'Vider' }}</span>
+                </button>
+                <button 
+                  @click="openAddPantryModal" 
+                  class="px-3 py-1.5 rounded-full bg-[#9E2A2B] text-white font-bold text-xs shadow-sm flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i> Ajouter
+                </button>
+              </div>
             </div>
 
             <div class="space-y-2">
@@ -827,12 +856,21 @@
               <button class="text-stone-400 hover:text-stone-800"><i class="fa-solid fa-chevron-right text-[10px]" :class="isRTL ? 'rotate-180' : ''"></i></button>
             </div>
 
-            <button 
-              @click="generatePlanWithAI" 
-              class="px-3.5 py-1.5 rounded-full bg-[#9E2A2B] hover:bg-[#852223] text-white text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
-              <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
-              <span>Générer</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button 
+                @click="resetMealPlanConfirm" 
+                class="px-2.5 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs font-bold transition-all flex items-center gap-1"
+                :title="t.btnResetPlan || 'Vider le Planning'">
+                <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                <span>{{ t.btnQuickClearPlan || 'Vider' }}</span>
+              </button>
+              <button 
+                @click="generatePlanWithAI" 
+                class="px-3.5 py-1.5 rounded-full bg-[#9E2A2B] hover:bg-[#852223] text-white text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
+                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                <span>Générer</span>
+              </button>
+            </div>
           </div>
 
           <!-- Ligne des Jours de la Semaine (Badges Stitch) -->
@@ -1011,17 +1049,25 @@
         <!-- ====================================================== -->
         <div v-if="activeTab === 'chat' && !selectedRecipeModal" class="px-5 pt-3 pb-28 flex flex-col h-full space-y-3">
           <!-- En-tête Chef Oussama -->
-          <div class="bg-white p-3.5 rounded-3xl border border-stone-100 shadow-sm flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl overflow-hidden border border-orange-200/80 shadow-inner shrink-0">
-              <img src="/images/chef-oussama.png" alt="Chef Oussama" class="w-full h-full object-cover">
-            </div>
-            <div>
-              <div class="font-extrabold text-sm text-[#101828]">Chef Oussama IA</div>
-              <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{{ t.chatAminaStatus || 'Expert Cuisines du Monde & Guide IA' }}</span>
+          <div class="bg-white p-3.5 rounded-3xl border border-stone-100 shadow-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl overflow-hidden border border-orange-200/80 shadow-inner shrink-0">
+                <img src="/images/chef-oussama.png" alt="Chef Oussama" class="w-full h-full object-cover">
+              </div>
+              <div>
+                <div class="font-extrabold text-sm text-[#101828]">Chef Oussama IA</div>
+                <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>{{ t.chatAminaStatus || 'Expert Cuisines du Monde & Guide IA' }}</span>
+                </div>
               </div>
             </div>
+            <button 
+              @click="resetChatConfirm" 
+              class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-all shrink-0 active:scale-95"
+              :title="t.btnResetChat || 'Effacer la discussion'">
+              <i class="fa-solid fa-rotate-left text-xs"></i>
+            </button>
           </div>
 
           <!-- Zone des Messages -->
@@ -1126,6 +1172,122 @@
               <span class="text-stone-500">{{ auth.user?.email }}</span>
               <a href="/auth/logout" class="text-red-600 font-bold hover:underline">Déconnexion SSO</a>
             </div>
+          </div>
+
+          <!-- CARTE GESTION & RÉINITIALISATION (CHEF OUSSAMA / RESET GLOBAL & MODULAIRE) -->
+          <div class="bg-white rounded-3xl p-5 border border-stone-100 shadow-sm space-y-4 text-xs">
+            <div class="flex items-center gap-2.5 pb-2 border-b border-stone-100">
+              <div class="w-8 h-8 rounded-xl bg-red-50 text-[#9E2A2B] flex items-center justify-center font-bold text-sm shrink-0">
+                🛠️
+              </div>
+              <div>
+                <h3 class="font-black text-sm text-[#101828]">{{ t.manageSectionTitle || 'Centre de Contrôle & Réinitialisation' }}</h3>
+                <p class="text-[10px] text-stone-400 font-medium">{{ t.manageSectionSubtitle || 'Commandes administrateur Chef Oussama' }}</p>
+              </div>
+            </div>
+
+            <!-- Boutons de réinitialisation individuels / modulaires -->
+            <div class="space-y-2">
+              
+              <!-- 1. Vider le Planning -->
+              <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-100">
+                <div class="pr-2">
+                  <div class="font-bold text-stone-800">{{ t.btnResetPlan || 'Vider le Planning de Repas' }}</div>
+                  <div class="text-[10px] text-stone-400">{{ t.btnResetPlanDesc || 'Efface tous les repas planifiés de la semaine' }}</div>
+                </div>
+                <button 
+                  @click="resetMealPlanConfirm" 
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-xs shrink-0 transition-all flex items-center gap-1 active:scale-95">
+                  <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                  <span>{{ t.btnQuickClearPlan || 'Vider' }}</span>
+                </button>
+              </div>
+
+              <!-- 2. Vider le Placard -->
+              <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-100">
+                <div class="pr-2">
+                  <div class="font-bold text-stone-800">{{ t.btnClearPantry || 'Vider le Placard' }}</div>
+                  <div class="text-[10px] text-stone-400">{{ t.btnClearPantryDesc || 'Supprime tous les ingrédients en stock' }}</div>
+                </div>
+                <button 
+                  @click="clearPantryConfirm('empty')" 
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-xs shrink-0 transition-all flex items-center gap-1 active:scale-95">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i>
+                  <span>{{ t.btnQuickClearPantry || 'Vider' }}</span>
+                </button>
+              </div>
+
+              <!-- 3. Restaurer Placard par Défaut -->
+              <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-100">
+                <div class="pr-2">
+                  <div class="font-bold text-stone-800">{{ t.btnRestorePantry || 'Restaurer Placard de Base' }}</div>
+                  <div class="text-[10px] text-stone-400">{{ t.btnRestorePantryDesc || 'Ingrédients de base (huile, harissa, semoule...)' }}</div>
+                </div>
+                <button 
+                  @click="clearPantryConfirm('default')" 
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-xs shrink-0 transition-all flex items-center gap-1 active:scale-95">
+                  <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                  <span>Restaurer</span>
+                </button>
+              </div>
+
+              <!-- 4. Effacer le Chat Chef Oussama -->
+              <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-100">
+                <div class="pr-2">
+                  <div class="font-bold text-stone-800">{{ t.btnResetChat || 'Effacer la discussion IA' }}</div>
+                  <div class="text-[10px] text-stone-400">{{ t.btnResetChatDesc || 'Réinitialise l\'historique avec Chef Oussama' }}</div>
+                </div>
+                <button 
+                  @click="resetChatConfirm" 
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-xs shrink-0 transition-all flex items-center gap-1 active:scale-95">
+                  <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                  <span>{{ t.btnQuickClearChat || 'Effacer' }}</span>
+                </button>
+              </div>
+
+              <!-- 5. Vider les Favoris -->
+              <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-100">
+                <div class="pr-2">
+                  <div class="font-bold text-stone-800">{{ t.btnClearFavorites || 'Vider les Favoris' }}</div>
+                  <div class="text-[10px] text-stone-400">{{ t.btnClearFavoritesDesc || 'Supprime toutes vos recettes favorites' }}</div>
+                </div>
+                <button 
+                  @click="clearFavoritesConfirm" 
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-xs shrink-0 transition-all flex items-center gap-1 active:scale-95">
+                  <i class="fa-regular fa-heart text-[10px]"></i>
+                  <span>Vider</span>
+                </button>
+              </div>
+
+              <!-- 6. Réinitialiser le Catalogue de Recettes -->
+              <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-100">
+                <div class="pr-2">
+                  <div class="font-bold text-stone-800">{{ t.btnResetRecipes || 'Catalogue de Recettes' }}</div>
+                  <div class="text-[10px] text-stone-400">{{ t.btnResetRecipesDesc || 'Restaure catalogue d\'origine (supprime créations IA)' }}</div>
+                </div>
+                <button 
+                  @click="resetRecipesConfirm" 
+                  class="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-200 border border-stone-200 text-stone-700 font-bold text-xs shrink-0 transition-all flex items-center gap-1 active:scale-95">
+                  <i class="fa-solid fa-book text-[10px]"></i>
+                  <span>Restaurer</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- 7. BOUTON HARD RESET ALL (DANGER ZONE) -->
+            <div class="pt-3 border-t border-red-100">
+              <button 
+                @click="hardResetAllConfirm" 
+                class="w-full py-3 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>{{ t.btnHardResetAll || 'Tout Réinitialiser (Remise à Zéro Complète)' }}</span>
+              </button>
+              <p class="text-[10px] text-red-500 font-medium text-center mt-1.5 leading-snug">
+                {{ t.btnHardResetAllDesc || 'Efface planning, placard, chat, favoris et réinitialise tout le catalogue' }}
+              </p>
+            </div>
+
           </div>
         </div>
 

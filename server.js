@@ -566,6 +566,45 @@ app.post('/api/chat', requireAuth, async (req, res) => {
 });
 
 // =============================================================================
+// API GESTION & RÉINITIALISATION (CHEF OUSSAMA / RESET GLOBAL & MODULAIRE)
+// =============================================================================
+app.post('/api/reset/plan', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const plan = Storage.resetMealPlan(userId);
+  res.json({ success: true, plan });
+});
+
+app.post('/api/reset/pantry', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const { mode } = req.body || {};
+  const items = mode === 'empty' ? Storage.clearPantry(userId) : Storage.resetPantryToDefault(userId);
+  res.json({ success: true, items });
+});
+
+app.post('/api/reset/chat', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const history = Storage.clearChatHistory(userId);
+  res.json({ success: true, history });
+});
+
+app.post('/api/reset/recipes', requireAuth, (req, res) => {
+  const recipes = Storage.resetRecipes();
+  res.json({ success: true, recipes });
+});
+
+app.post('/api/reset/favorites', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const favorites = Storage.clearFavorites(userId);
+  res.json({ success: true, favorites });
+});
+
+app.post('/api/reset/all', requireAuth, (req, res) => {
+  const userId = getUserId(req);
+  const result = Storage.hardResetAll(userId);
+  res.json({ success: true, ...result });
+});
+
+// =============================================================================
 // STATIQUES & FRONTEND SINGLE-PAGE APP
 // =============================================================================
 app.use(express.static(path.join(__dirname, 'public')));

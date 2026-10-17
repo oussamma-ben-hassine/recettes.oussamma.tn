@@ -213,10 +213,70 @@ export const Storage = {
     ];
   },
 
-  saveChatHistory(userId = 'default', messages) {
-    const all = readJsonFile(CHAT_FILE, {});
-    all[userId] = messages;
-    writeJsonFile(CHAT_FILE, all);
-    return messages;
+  // --- GESTION & RÉINITIALISATION (CHEF OUSSAMA / ADMIN) ---
+  resetRecipes() {
+    writeJsonFile(RECIPES_FILE, initialRecipes);
+    return initialRecipes;
+  },
+
+  resetMealPlan(userId = 'default') {
+    const emptyPlan = {
+      period: 'semaine',
+      defaultServings: 4,
+      days: {
+        lundi: { midi: null, soir: null },
+        mardi: { midi: null, soir: null },
+        mercredi: { midi: null, soir: null },
+        jeudi: { midi: null, soir: null },
+        vendredi: { midi: null, soir: null },
+        samedi: { midi: null, soir: null },
+        dimanche: { midi: null, soir: null }
+      },
+      updatedAt: new Date().toISOString()
+    };
+    return this.saveMealPlan(userId, emptyPlan);
+  },
+
+  clearPantry(userId = 'default') {
+    return this.savePantry(userId, []);
+  },
+
+  resetPantryToDefault(userId = 'default') {
+    const defaultItems = [
+      { id: 'p_1', name: "Huile d'olive extra vierge", quantity: 500, unit: "ml", category: "Huiles & Condiments", brand: "Terra Delyssa" },
+      { id: 'p_2', name: "Harissa artisanale", quantity: 100, unit: "g", category: "Épices & Condiments", brand: "Le Phare du Cap Bon" },
+      { id: 'p_3', name: "Concentré de tomate", quantity: 150, unit: "g", category: "Épicerie & Féculents", brand: "Sicam" },
+      { id: 'p_4', name: "Semoule de couscous moyen", quantity: 500, unit: "g", category: "Épicerie & Féculents", brand: "Dari" },
+      { id: 'p_5', name: "Cumin en poudre de Nabeul", quantity: 40, unit: "g", category: "Épices & Condiments", brand: "Épices Nabeul" }
+    ];
+    return this.savePantry(userId, defaultItems);
+  },
+
+  clearChatHistory(userId = 'default') {
+    const initial = [
+      {
+        id: `msg_intro_${Date.now()}`,
+        sender: 'ai',
+        text: "Salem alaykoum ! Je suis Chef Oussama, votre assistant culinaire mondial & anti-gaspillage. Que souhaitez-vous préparer aujourd'hui ?",
+        timestamp: new Date().toISOString()
+      }
+    ];
+    return this.saveChatHistory(userId, initial);
+  },
+
+  clearFavorites(userId = 'default') {
+    const all = readJsonFile(FAVORITES_FILE, {});
+    all[userId] = [];
+    writeJsonFile(FAVORITES_FILE, all);
+    return [];
+  },
+
+  hardResetAll(userId = 'default') {
+    const plan = this.resetMealPlan(userId);
+    const pantry = this.resetPantryToDefault(userId);
+    const history = this.clearChatHistory(userId);
+    const favorites = this.clearFavorites(userId);
+    const recipes = this.resetRecipes();
+    return { plan, pantry, history, favorites, recipes };
   }
 };

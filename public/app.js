@@ -182,7 +182,39 @@ const translations = {
     inStock100: "100% en stock",
     missingCountText: "manquant",
     missingPluralText: "manquants",
-    pantryEmptyNotice: "Votre placard est vide pour l'instant ! Ajoutez d'abord quelques ingrédients dans l'onglet Placard & Courses."
+    pantryEmptyNotice: "Votre placard est vide pour l'instant ! Ajoutez d'abord quelques ingrédients dans l'onglet Placard & Courses.",
+
+    // Centre de Gestion & Réinitialisation (Chef Oussama)
+    manageSectionTitle: "Centre de Contrôle & Réinitialisation",
+    manageSectionSubtitle: "Commandes administrateur Chef Oussama pour vider, réinitialiser ou restaurer vos données",
+    btnResetPlan: "Vider le Planning de Repas",
+    btnResetPlanDesc: "Efface tous les repas planifiés de la semaine (midi & soir)",
+    btnClearPantry: "Vider le Placard",
+    btnClearPantryDesc: "Supprime tous les ingrédients actuellement en stock chez vous",
+    btnRestorePantry: "Restaurer le Placard par défaut",
+    btnRestorePantryDesc: "Restaure les ingrédients de base (huile d'olive, harissa, semoule...)",
+    btnResetChat: "Effacer la discussion avec Chef Oussama",
+    btnResetChatDesc: "Réinitialise l'historique et recommence une conversation propre",
+    btnClearFavorites: "Vider les Favoris",
+    btnClearFavoritesDesc: "Supprime toutes vos recettes favorites enregistrées",
+    btnResetRecipes: "Réinitialiser le Catalogue de Recettes",
+    btnResetRecipesDesc: "Restaure les recettes d'origine et supprime les recettes importées/IA",
+    btnHardResetAll: "⚠️ Tout Réinitialiser (Remise à Zéro Complète)",
+    btnHardResetAllDesc: "Efface planning, placard, chat, favoris et réinitialise tout le catalogue",
+    confirmResetPlan: "Êtes-vous sûr de vouloir vider tout le planning de la semaine ?",
+    confirmClearPantry: "Êtes-vous sûr de vouloir vider tous les ingrédients de votre placard ?",
+    confirmRestorePantry: "Voulez-vous restaurer les ingrédients de base par défaut du placard ?",
+    confirmResetChat: "Voulez-vous effacer tout l'historique de discussion avec Chef Oussama ?",
+    confirmClearFavorites: "Voulez-vous retirer toutes vos recettes favorites ?",
+    confirmResetRecipes: "Attention : toutes les recettes créées par IA ou importées du web seront supprimées. Confirmer la réinitialisation ?",
+    confirmHardResetAll: "🚨 ATTENTION DANGER : Cette action va effacer votre planning, réinitialiser votre placard, vider la discussion, effacer vos favoris et restaurer les recettes d'origine. Êtes-vous ABSOLUMENT certain ?",
+    confirmDeleteRecipe: "Voulez-vous supprimer cette recette du catalogue ?",
+    btnDeleteRecipe: "Supprimer la Recette",
+    btnClearShoppingChecks: "Décocher tout",
+    btnQuickClearPlan: "Vider",
+    btnQuickClearPantry: "Vider",
+    btnQuickClearChat: "Effacer",
+    resetSuccess: "Opération effectuée avec succès !"
   },
 
   ar: {
@@ -366,7 +398,39 @@ const translations = {
     inStock100: "جاهز 100% في المخزن",
     missingCountText: "ناقص",
     missingPluralText: "نواقص",
-    pantryEmptyNotice: "مخزنك فارغ حالياً! أضف بعض المكونات أولاً في قسم مؤونة المطبخ."
+    pantryEmptyNotice: "مخزنك فارغ حالياً! أضف بعض المكونات أولاً في قسم مؤونة المطبخ.",
+
+    // Centre de Gestion & Réinitialisation (Chef Oussama)
+    manageSectionTitle: "مركز التحكم والإدارة وإعادة الضبط",
+    manageSectionSubtitle: "أوامر الشيف أسامة لإفراغ، مسح، أو إعادة ضبط بيانات التطبيق",
+    btnResetPlan: "تفريغ جدول وجبات الأسبوع",
+    btnResetPlanDesc: "حذف جميع الوجبات المحددة لجميع أيام الأسبوع (غداء وعشاء)",
+    btnClearPantry: "تفريغ مؤونة المطبخ",
+    btnClearPantryDesc: "حذف كافة المكونات المتوفرة حالياً في المخزن",
+    btnRestorePantry: "استعادة المخزن الافتراضي",
+    btnRestorePantryDesc: "استعادة المكونات الأساسية (زيت زيتون، هريسة، كسكسي، بهارات...)",
+    btnResetChat: "مسح محادثة الشيف أسامة",
+    btnResetChatDesc: "إعادة تعيين سجل المحادثة وبدء حوار جديد مع المساعد الذكي",
+    btnClearFavorites: "مسح قائمة المفضلة",
+    btnClearFavoritesDesc: "إزالة كافة الأطباق المحفوظة في قائمة المفضلة",
+    btnResetRecipes: "إعادة ضبط كتالوج الوصفات",
+    btnResetRecipesDesc: "استعادة قائمة الوصفات الأصلية وحذف الأطباق المبتكرة أو المستوردة",
+    btnHardResetAll: "⚠️ إعادة ضبط شاملة (تصفير كل شيء)",
+    btnHardResetAllDesc: "تصفير الجدول والمخزن والمحادثة والمفضلة والوصفات إلى الحالة الأولية",
+    confirmResetPlan: "هل أنت متأكد من تفريغ جدول وجبات الأسبوع بالكامل؟",
+    confirmClearPantry: "هل أنت متأكد من مسح جميع مكونات المخزن؟",
+    confirmRestorePantry: "هل تريد استعادة مكونات المخزن الافتراضية الأساسية؟",
+    confirmResetChat: "هل تريد مسح سجل المحادثة بالكامل مع الشيف أسامة؟",
+    confirmClearFavorites: "هل تريد إزالة جميع الأطباق من المفضلة؟",
+    confirmResetRecipes: "تنبيه: سيتم حذف جميع الوصفات المبتكرة بالـ AI أو المستوردة. هل تؤكد ذلك؟",
+    confirmHardResetAll: "🚨 تحذير هام: سيقوم هذا الإجراء بتفريغ الجدول وإعادة ضبط المخزن ومسح المحادثة وتصفير المفضلة واستعادة الوصفات الأصلية. هل أنت متأكد تماماً؟",
+    confirmDeleteRecipe: "هل تريد بالتأكيد حذف هذه الوصفة من الكتالوج؟",
+    btnDeleteRecipe: "حذف الوصفة",
+    btnClearShoppingChecks: "إلغاء التحديد",
+    btnQuickClearPlan: "تفريغ",
+    btnQuickClearPantry: "تفريغ",
+    btnQuickClearChat: "مسح",
+    resetSuccess: "تمت العملية بنجاح!"
   },
 
   en: {
@@ -550,7 +614,39 @@ const translations = {
     inStock100: "100% in stock",
     missingCountText: "missing",
     missingPluralText: "missing",
-    pantryEmptyNotice: "Your pantry is empty right now! Add some ingredients in the Pantry tab first."
+    pantryEmptyNotice: "Your pantry is empty right now! Add some ingredients in the Pantry tab first.",
+
+    // Centre de Gestion & Réinitialisation (Chef Oussama)
+    manageSectionTitle: "Management & Reset Center",
+    manageSectionSubtitle: "Chef Oussama admin commands to clear, reset, or restore application data",
+    btnResetPlan: "Clear Weekly Meal Plan",
+    btnResetPlanDesc: "Removes all scheduled meals for the week (lunch & dinner)",
+    btnClearPantry: "Empty Pantry",
+    btnClearPantryDesc: "Deletes all items currently in your pantry inventory",
+    btnRestorePantry: "Restore Default Pantry",
+    btnRestorePantryDesc: "Restores starter staples (olive oil, harissa, couscous, spices...)",
+    btnResetChat: "Clear Chef Oussama Chat",
+    btnResetChatDesc: "Wipes conversation history and starts a fresh dialogue",
+    btnClearFavorites: "Clear Favorites",
+    btnClearFavoritesDesc: "Removes all recipes saved in your favorites list",
+    btnResetRecipes: "Reset Recipe Catalog",
+    btnResetRecipesDesc: "Restores initial recipes and removes AI-generated/imported dishes",
+    btnHardResetAll: "⚠️ Reset Everything (Hard Reset)",
+    btnHardResetAllDesc: "Clears meal plan, resets pantry, wipes chat, removes favorites, and restores catalog",
+    confirmResetPlan: "Are you sure you want to clear the entire weekly meal plan?",
+    confirmClearPantry: "Are you sure you want to delete all items in your pantry?",
+    confirmRestorePantry: "Do you want to restore default starter pantry items?",
+    confirmResetChat: "Do you want to clear your entire chat history with Chef Oussama?",
+    confirmClearFavorites: "Do you want to remove all recipes from your favorites?",
+    confirmResetRecipes: "Warning: All AI-generated and web-imported recipes will be deleted. Confirm reset?",
+    confirmHardResetAll: "🚨 CAUTION: This will clear your meal plan, reset your pantry, wipe chat history, delete favorites, and restore initial recipes. Are you ABSOLUTELY sure?",
+    confirmDeleteRecipe: "Are you sure you want to delete this recipe from your catalog?",
+    btnDeleteRecipe: "Delete Recipe",
+    btnClearShoppingChecks: "Uncheck All",
+    btnQuickClearPlan: "Clear",
+    btnQuickClearPantry: "Empty",
+    btnQuickClearChat: "Clear",
+    resetSuccess: "Action completed successfully!"
   }
 };
 
@@ -1586,6 +1682,130 @@ createApp({
     getRecipeById(id) {
       if (!id) return null;
       return this.recipes.find(r => r.id === id) || null;
+    },
+
+    // --- GESTION & RÉINITIALISATION (CHEF OUSSAMA / ADMIN) ---
+    async resetMealPlanConfirm() {
+      if (!confirm(this.t.confirmResetPlan)) return;
+      try {
+        const res = await fetch('/api/reset/plan', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          this.mealPlan = data.plan;
+          await this.fetchShoppingList();
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur reset plan:', e);
+      }
+    },
+
+    async clearPantryConfirm(mode = 'empty') {
+      const msg = mode === 'empty' ? this.t.confirmClearPantry : this.t.confirmRestorePantry;
+      if (!confirm(msg)) return;
+      try {
+        const res = await fetch('/api/reset/pantry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          this.pantryItems = data.items;
+          await this.fetchShoppingList();
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur reset pantry:', e);
+      }
+    },
+
+    async resetChatConfirm() {
+      if (!confirm(this.t.confirmResetChat)) return;
+      try {
+        const res = await fetch('/api/reset/chat', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          this.chatMessages = data.history;
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur reset chat:', e);
+      }
+    },
+
+    async clearFavoritesConfirm() {
+      if (!confirm(this.t.confirmClearFavorites)) return;
+      try {
+        const res = await fetch('/api/reset/favorites', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          this.favoriteIds = data.favorites;
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur reset favorites:', e);
+      }
+    },
+
+    async resetRecipesConfirm() {
+      if (!confirm(this.t.confirmResetRecipes)) return;
+      try {
+        const res = await fetch('/api/reset/recipes', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          this.recipes = data.recipes;
+          await this.fetchShoppingList();
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur reset recipes:', e);
+      }
+    },
+
+    async hardResetAllConfirm() {
+      if (!confirm(this.t.confirmHardResetAll)) return;
+      try {
+        const res = await fetch('/api/reset/all', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          this.mealPlan = data.plan;
+          this.pantryItems = data.pantry;
+          this.chatMessages = data.history;
+          this.favoriteIds = data.favorites;
+          this.recipes = data.recipes;
+          this.checkedShoppingItems = [];
+          localStorage.removeItem('checked_shopping_items');
+          await this.fetchShoppingList();
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur hard reset:', e);
+      }
+    },
+
+    async deleteRecipeConfirm(recipeId) {
+      if (!recipeId) return;
+      if (!confirm(this.t.confirmDeleteRecipe)) return;
+      try {
+        const res = await fetch(`/api/recipes/${recipeId}`, { method: 'DELETE' });
+        if (res.ok) {
+          this.recipes = this.recipes.filter(r => r.id !== recipeId);
+          this.favoriteIds = this.favoriteIds.filter(id => id !== recipeId);
+          if (this.selectedRecipeModal && this.selectedRecipeModal.id === recipeId) {
+            this.closeRecipeDetails();
+          }
+          await this.fetchShoppingList();
+          alert(this.t.resetSuccess);
+        }
+      } catch (e) {
+        console.error('Erreur suppression recette:', e);
+      }
+    },
+
+    resetCheckedShoppingItems() {
+      this.checkedShoppingItems = [];
+      localStorage.removeItem('checked_shopping_items');
     }
   }
 }).mount('#app');
