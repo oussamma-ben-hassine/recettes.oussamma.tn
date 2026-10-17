@@ -93,7 +93,7 @@
       <!-- ======================================================== -->
       <!-- AUTH WALL STRICT SSO (SI NON CONNECTÉ) -->
       <!-- ======================================================== -->
-      <div v-if="authChecked && !auth.authenticated" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/90 backdrop-blur-md">
+      <div v-if="authChecked && !auth.authenticated && !dismissAuthWall" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/90 backdrop-blur-md">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 text-center space-y-5">
           <!-- Logo & Badges -->
           <div class="w-14 h-14 rounded-2xl bg-[#FDF2E9] text-[#E07A5F] flex items-center justify-center text-2xl mx-auto shadow-inner">
@@ -118,10 +118,16 @@
             </div>
           </div>
 
-          <a href="/auth/login" class="w-full py-3.5 rounded-2xl bg-[#9E2A2B] hover:bg-[#852223] text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition-all">
-            <i class="fa-solid fa-lock"></i>
-            <span>{{ t.authWallButton }}</span>
-          </a>
+          <div class="space-y-2 pt-1">
+            <a href="/auth/login" class="w-full py-3.5 rounded-2xl bg-[#9E2A2B] hover:bg-[#852223] text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition-all">
+              <i class="fa-solid fa-lock"></i>
+              <span>{{ t.authWallButton }}</span>
+            </a>
+            <button @click="dismissGuestWall" class="w-full py-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs transition-all flex items-center justify-center gap-1.5">
+              <span>Continuer en mode invité</span>
+              <i class="fa-solid fa-arrow-right text-[10px]" :class="isRTL ? 'rotate-180' : ''"></i>
+            </button>
+          </div>
         </div>
       </div>
 

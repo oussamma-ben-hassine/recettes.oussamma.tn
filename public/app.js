@@ -758,7 +758,8 @@ createApp({
       checkedShoppingItems: JSON.parse(localStorage.getItem('checked_shopping_items') || '[]'),
       newShoppingItemInput: '',
       activePlanningDay: 'lundi',
-      selectedWeekLabel: '12 - 18 Mai'
+      selectedWeekLabel: '12 - 18 Mai',
+      dismissAuthWall: localStorage.getItem('dismiss_auth_wall') === '1'
     };
   },
 
@@ -924,16 +925,14 @@ createApp({
     await this.fetchAuth();
     this.authChecked = true;
 
-    // Si authentifié via SSO, charger les données de l'application
-    if (this.auth.authenticated) {
-      await this.fetchRecipes();
-      await this.fetchFavorites();
-      await this.fetchPlan();
-      await this.fetchPantry();
-      await this.fetchPreferences();
-      await this.fetchShoppingList();
-      await this.fetchChat();
-    }
+    // Charger les données de l'application (profil utilisateur ou invité)
+    await this.fetchRecipes();
+    await this.fetchFavorites();
+    await this.fetchPlan();
+    await this.fetchPantry();
+    await this.fetchPreferences();
+    await this.fetchShoppingList();
+    await this.fetchChat();
   },
 
   methods: {
@@ -954,6 +953,11 @@ createApp({
 
     loginSSO() {
       window.location.href = '/auth/login';
+    },
+
+    dismissGuestWall() {
+      this.dismissAuthWall = true;
+      localStorage.setItem('dismiss_auth_wall', '1');
     },
 
     // --- PWA INSTALLATION MOBILE ---

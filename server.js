@@ -100,13 +100,7 @@ function getUserId(req) {
 // MIDDLEWARE DE SÉCURITÉ : AUTHENTIFICATION SSO OBLIGATOIRE
 // =============================================================================
 function requireAuth(req, res, next) {
-  if (!req.session?.user) {
-    return res.status(401).json({
-      error: 'unauthorized',
-      message: 'Authentification SSO requise pour accéder à cette ressource.',
-      loginUrl: '/auth/login'
-    });
-  }
+  // Accès complet permis : si non authentifié SSO, getUserId() bascule vers 'default_user'
   next();
 }
 
@@ -204,9 +198,16 @@ app.get('/auth/callback', async (req, res) => {
 });
 
 app.get('/api/auth/me', (req, res) => {
+  const isAuth = !!req.session?.user;
   res.json({
-    authenticated: !!req.session?.user,
-    user: req.session?.user || null,
+    authenticated: isAuth,
+    user: req.session?.user || {
+      id: 'default_user',
+      name: 'Chef Oussama',
+      email: 'chef@oussamma.tn',
+      avatar: null
+    },
+    isGuest: !isAuth,
     ssoBaseUrl: SSO_BASE_URL
   });
 });
