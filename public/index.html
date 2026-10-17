@@ -358,8 +358,43 @@
               </button>
             </div>
 
+            <!-- Bannière Résultats Recherche IA si présente -->
+            <div v-if="aiSearchResult" class="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-3.5 border border-orange-200/80 shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-full bg-[#9E2A2B] text-white flex items-center justify-center text-xs shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  </div>
+                  <div>
+                    <div class="font-extrabold text-xs text-[#101828]">Conseil Chef Oussama IA</div>
+                    <div class="text-[10px] text-stone-500">{{ aiSearchResult.summary || 'Résultats personnalisés pour votre recherche' }}</div>
+                  </div>
+                </div>
+                <button @click="clearAiSearch" class="text-stone-400 hover:text-stone-700 p-1 text-xs">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- État Vide : aucune recette trouvée -->
+            <div v-if="filteredRecipes.length === 0" class="text-center py-12 px-4 bg-white rounded-3xl border border-stone-100 shadow-sm space-y-3">
+              <div class="text-4xl">🍲</div>
+              <h3 class="font-bold text-sm text-[#101828]">Aucune recette trouvée</h3>
+              <p class="text-xs text-stone-400 max-w-xs mx-auto">
+                Essayez d'ajuster votre recherche, de changer de catégorie ou d'importer une recette du Web gratuitement !
+              </p>
+              <div class="flex items-center justify-center gap-2 pt-2">
+                <button @click="currentFilter = 'all'; searchQuery = ''; clearAiSearch()" class="px-4 py-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs">
+                  Réinitialiser les filtres
+                </button>
+                <button @click="openWebImportModal" class="px-4 py-2 rounded-full bg-[#9E2A2B] text-white font-bold text-xs shadow-sm">
+                  🌐 Importer du Web
+                </button>
+              </div>
+            </div>
+
             <!-- Grille / Liste des Cartes de Recettes -->
-            <div class="grid grid-cols-2 gap-3">
+            <div v-else class="grid grid-cols-2 gap-3">
               <div 
                 v-for="recipe in filteredRecipes" 
                 :key="recipe.id"
@@ -695,8 +730,19 @@
               </div>
             </div>
 
-            <!-- Liste des Catégories avec leurs Articles -->
-            <div class="space-y-3">
+            <!-- Liste des Catégories avec leurs Articles ou État Vide -->
+            <div v-if="shoppingCategorizedItems.length === 0" class="text-center py-12 px-4 bg-white rounded-3xl border border-stone-100 shadow-sm space-y-3">
+              <div class="text-4xl">🛒</div>
+              <h3 class="font-bold text-sm text-[#101828]">Votre panier est vide</h3>
+              <p class="text-xs text-stone-400 max-w-xs mx-auto">
+                Planifiez des repas dans l'onglet Planning ou ajoutez directement des articles avec le champ ci-dessous.
+              </p>
+              <button @click="activeTab = 'planning'" class="px-4 py-2 rounded-full bg-[#9E2A2B] text-white font-bold text-xs shadow-sm">
+                Ouvrir le Planning
+              </button>
+            </div>
+
+            <div v-else class="space-y-3">
               <div 
                 v-for="cat in shoppingCategorizedItems" 
                 :key="cat.name"
@@ -822,7 +868,24 @@
               </div>
             </div>
 
-            <div class="space-y-2">
+            <!-- État vide du placard -->
+            <div v-if="pantryItems.length === 0" class="text-center py-10 px-4 bg-white rounded-2xl border border-dashed border-stone-200 space-y-3">
+              <div class="text-3xl">🥫</div>
+              <h4 class="font-bold text-xs text-[#101828]">Votre placard est vide</h4>
+              <p class="text-[11px] text-stone-400 max-w-xs mx-auto">
+                Ajoutez vos ingrédients habituels en réserve ou restaurez le stock de base par défaut.
+              </p>
+              <div class="flex items-center justify-center gap-2 pt-1">
+                <button @click="restorePantryConfirm" class="px-3.5 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs transition-colors">
+                  Restaurer ingrédients de base
+                </button>
+                <button @click="openAddPantryModal" class="px-3.5 py-1.5 rounded-full bg-[#9E2A2B] text-white font-bold text-xs shadow-sm">
+                  + Ajouter
+                </button>
+              </div>
+            </div>
+
+            <div v-else class="space-y-2">
               <div 
                 v-for="item in pantryItems" 
                 :key="item.id"
@@ -875,157 +938,104 @@
 
           <!-- Ligne des Jours de la Semaine (Badges Stitch) -->
           <div class="flex items-center gap-2 overflow-x-auto custom-scroll pb-1 -mx-5 px-5">
+            <!-- Bouton TOUS -->
             <button 
-              @click="activePlanningDay = 'lundi'"
-              :class="activePlanningDay === 'lundi' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
-              class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-bold opacity-80 uppercase">LUN</span>
-              <span class="text-base font-black">12</span>
+              @click="activePlanningDay = 'all'"
+              :class="activePlanningDay === 'all' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
+              class="w-14 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all font-bold text-xs">
+              <span class="text-[10px] uppercase opacity-80">TOUS</span>
+              <span class="text-xs font-black">7 jours</span>
             </button>
+
+            <!-- 7 Jours de la Semaine -->
             <button 
-              @click="activePlanningDay = 'mardi'"
-              :class="activePlanningDay === 'mardi' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
+              v-for="d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']"
+              :key="d"
+              @click="activePlanningDay = d"
+              :class="activePlanningDay === d ? 'bg-[#9E2A2B] text-white shadow-md' : (d === 'vendredi' ? 'bg-[#EAF2FD] text-[#2563EB] border border-[#D3E4FA]' : 'bg-white text-stone-700 border border-stone-200')"
               class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-bold opacity-80 uppercase">MAR</span>
-              <span class="text-base font-black">13</span>
-            </button>
-            <button 
-              @click="activePlanningDay = 'mercredi'"
-              :class="activePlanningDay === 'mercredi' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
-              class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-bold opacity-80 uppercase">MER</span>
-              <span class="text-base font-black">14</span>
-            </button>
-            <button 
-              @click="activePlanningDay = 'jeudi'"
-              :class="activePlanningDay === 'jeudi' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
-              class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-bold opacity-80 uppercase">JEU</span>
-              <span class="text-base font-black">15</span>
-            </button>
-            <button 
-              @click="activePlanningDay = 'vendredi'"
-              :class="activePlanningDay === 'vendredi' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-[#EAF2FD] text-[#2563EB] border border-[#D3E4FA]'"
-              class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-extrabold uppercase">VEN</span>
-              <span class="text-base font-black">16</span>
-            </button>
-            <button 
-              @click="activePlanningDay = 'samedi'"
-              :class="activePlanningDay === 'samedi' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
-              class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-bold opacity-80 uppercase">SAM</span>
-              <span class="text-base font-black">17</span>
-            </button>
-            <button 
-              @click="activePlanningDay = 'dimanche'"
-              :class="activePlanningDay === 'dimanche' ? 'bg-[#9E2A2B] text-white shadow-md' : 'bg-white text-stone-700 border border-stone-200'"
-              class="w-12 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 transition-all">
-              <span class="text-[10px] font-bold opacity-80 uppercase">DIM</span>
-              <span class="text-base font-black">18</span>
+              <span class="text-[10px] font-bold opacity-80 uppercase">{{ getDayShort(d) }}</span>
+              <span class="text-sm font-black">{{ (mealPlan?.days?.[d]?.midi ? 1 : 0) + (mealPlan?.days?.[d]?.soir ? 1 : 0) }}</span>
             </button>
           </div>
 
-          <!-- Section Repas du Jour -->
+          <!-- Section Repas par Jour (Dynamique 7 jours) -->
           <div class="space-y-4">
             
-            <!-- Lundi 12 -->
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-xs font-bold text-stone-500">
-                <span class="font-black text-sm text-[#101828]">Lundi 12</span>
-                <span>2 repas</span>
-              </div>
-
-              <!-- Midi -->
-              <div class="bg-white rounded-2xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-12 h-12 rounded-xl bg-orange-50 overflow-hidden shrink-0 flex items-center justify-center">
-                    <img v-if="mealPlan.days?.lundi?.midi && getRecipeById(mealPlan.days.lundi.midi.recipeId)?.image" :src="getRecipeById(mealPlan.days.lundi.midi.recipeId).image" class="w-full h-full object-cover">
-                    <span v-else class="text-xl">🍳</span>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 block">MIDI</span>
-                    <div class="font-bold text-xs text-[#101828] truncate">
-                      {{ mealPlan.days?.lundi?.midi ? (getRecipeById(mealPlan.days.lundi.midi.recipeId)?.title || 'Plat sélectionné') : 'Ojja aux Merguez' }}
-                    </div>
-                    <div class="text-[10px] text-stone-400 font-medium">🕒 20 min  👥 {{ mealPlan.days?.lundi?.midi?.servings || 4 }}</div>
-                  </div>
-                </div>
-                <button @click="openSwapMeal('lundi', 'midi')" class="text-stone-400 hover:text-[#9E2A2B] p-2">
-                  <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
-                </button>
-              </div>
-
-              <!-- Soir -->
-              <div class="bg-white rounded-2xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-12 h-12 rounded-xl bg-indigo-50 overflow-hidden shrink-0 flex items-center justify-center">
-                    <img v-if="mealPlan.days?.lundi?.soir && getRecipeById(mealPlan.days.lundi.soir.recipeId)?.image" :src="getRecipeById(mealPlan.days.lundi.soir.recipeId).image" class="w-full h-full object-cover">
-                    <span v-else class="text-xl">🥗</span>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 block">SOIR</span>
-                    <div class="font-bold text-xs text-[#101828] truncate">
-                      {{ mealPlan.days?.lundi?.soir ? (getRecipeById(mealPlan.days.lundi.soir.recipeId)?.title || 'Plat sélectionné') : 'Salade Méchouia' }}
-                    </div>
-                    <div class="text-[10px] text-stone-400 font-medium">🕒 25 min  👥 {{ mealPlan.days?.lundi?.soir?.servings || 4 }}</div>
-                  </div>
-                </div>
-                <button @click="openSwapMeal('lundi', 'soir')" class="text-stone-400 hover:text-[#9E2A2B] p-2">
-                  <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Vendredi 16 (Tradition Couscous) -->
-            <div class="space-y-2">
+            <div 
+              v-for="dayKey in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']" 
+              :key="dayKey"
+              v-show="activePlanningDay === dayKey || activePlanningDay === 'all'"
+              class="space-y-2">
+              
               <div class="flex items-center justify-between text-xs font-bold text-stone-500">
                 <div class="flex items-center gap-2">
-                  <span class="font-black text-sm text-[#101828]">Vendredi 16</span>
-                  <span class="px-2 py-0.5 rounded-full bg-[#FDE8E8] text-[#9E2A2B] text-[10px] font-bold">Tradition</span>
+                  <span class="font-black text-sm text-[#101828] capitalize">{{ getDayLabel(dayKey) }}</span>
+                  <span v-if="dayKey === 'vendredi'" class="px-2 py-0.5 rounded-full bg-[#FDE8E8] text-[#9E2A2B] text-[10px] font-bold">Tradition Couscous</span>
                 </div>
-                <span>2 repas</span>
+                <span>{{ (mealPlan?.days?.[dayKey]?.midi ? 1 : 0) + (mealPlan?.days?.[dayKey]?.soir ? 1 : 0) }} repas</span>
               </div>
 
-              <!-- Midi Couscous -->
+              <!-- Créneau Midi -->
               <div class="bg-white rounded-2xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-12 h-12 rounded-xl bg-rose-50 overflow-hidden shrink-0 flex items-center justify-center">
-                    <img v-if="mealPlan.days?.vendredi?.midi && getRecipeById(mealPlan.days.vendredi.midi.recipeId)?.image" :src="getRecipeById(mealPlan.days.vendredi.midi.recipeId).image" class="w-full h-full object-cover">
-                    <span v-else class="text-xl">🍲</span>
+                <div 
+                  class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" 
+                  @click="mealPlan?.days?.[dayKey]?.midi ? openRecipeById(mealPlan.days[dayKey].midi.recipeId) : openSwapMeal(dayKey, 'midi')">
+                  <div class="w-12 h-12 rounded-xl bg-orange-50 overflow-hidden shrink-0 flex items-center justify-center border border-orange-100">
+                    <img v-if="mealPlan?.days?.[dayKey]?.midi && getRecipeById(mealPlan.days[dayKey].midi.recipeId)?.image" :src="getRecipeById(mealPlan.days[dayKey].midi.recipeId).image" class="w-full h-full object-cover">
+                    <span v-else class="text-xl">🍳</span>
                   </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 block">MIDI</span>
+                  <div class="min-w-0 flex-1">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 block">MIDI · DÉJEUNER</span>
                     <div class="font-bold text-xs text-[#101828] truncate">
-                      {{ mealPlan.days?.vendredi?.midi ? (getRecipeById(mealPlan.days.vendredi.midi.recipeId)?.title || 'Plat sélectionné') : 'Couscous au Mérou' }}
+                      {{ mealPlan?.days?.[dayKey]?.midi ? (getRecipeById(mealPlan.days[dayKey].midi.recipeId)?.title || 'Plat sélectionné') : '+ Choisir une recette' }}
                     </div>
-                    <div class="text-[10px] text-stone-400 font-medium">🕒 45 min  👥 {{ mealPlan.days?.vendredi?.midi?.servings || 6 }}</div>
+                    <div v-if="mealPlan?.days?.[dayKey]?.midi" class="text-[10px] text-stone-400 font-medium">
+                      🕒 {{ (getRecipeById(mealPlan.days[dayKey].midi.recipeId)?.prepTime || 20) + (getRecipeById(mealPlan.days[dayKey].midi.recipeId)?.cookTime || 10) }} min  👥 {{ mealPlan.days[dayKey].midi.servings || 4 }} pers.
+                    </div>
+                    <div v-else class="text-[10px] text-stone-400 font-medium">Créneau libre</div>
                   </div>
                 </div>
-                <button @click="openSwapMeal('vendredi', 'midi')" class="text-stone-400 hover:text-[#9E2A2B] p-2">
-                  <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
-                </button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button @click="openSwapMeal(dayKey, 'midi')" :title="mealPlan?.days?.[dayKey]?.midi ? 'Changer' : 'Choisir'" class="text-stone-400 hover:text-[#9E2A2B] p-2 transition-colors">
+                    <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
+                  </button>
+                  <button v-if="mealPlan?.days?.[dayKey]?.midi" @click="removeMeal(dayKey, 'midi')" title="Retirer" class="text-stone-300 hover:text-red-600 p-2 transition-colors">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                  </button>
+                </div>
               </div>
 
-              <!-- Soir Soupe -->
+              <!-- Créneau Soir -->
               <div class="bg-white rounded-2xl p-3 border border-stone-100 shadow-sm flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-12 h-12 rounded-xl bg-indigo-50 overflow-hidden shrink-0 flex items-center justify-center">
-                    <img v-if="mealPlan.days?.vendredi?.soir && getRecipeById(mealPlan.days.vendredi.soir.recipeId)?.image" :src="getRecipeById(mealPlan.days.vendredi.soir.recipeId).image" class="w-full h-full object-cover">
-                    <span v-else class="text-xl">🥣</span>
+                <div 
+                  class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" 
+                  @click="mealPlan?.days?.[dayKey]?.soir ? openRecipeById(mealPlan.days[dayKey].soir.recipeId) : openSwapMeal(dayKey, 'soir')">
+                  <div class="w-12 h-12 rounded-xl bg-indigo-50 overflow-hidden shrink-0 flex items-center justify-center border border-indigo-100">
+                    <img v-if="mealPlan?.days?.[dayKey]?.soir && getRecipeById(mealPlan.days[dayKey].soir.recipeId)?.image" :src="getRecipeById(mealPlan.days[dayKey].soir.recipeId).image" class="w-full h-full object-cover">
+                    <span v-else class="text-xl">🌙</span>
                   </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 block">SOIR</span>
+                  <div class="min-w-0 flex-1">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 block">SOIR · DÎNER</span>
                     <div class="font-bold text-xs text-[#101828] truncate">
-                      {{ mealPlan.days?.vendredi?.soir ? (getRecipeById(mealPlan.days.vendredi.soir.recipeId)?.title || 'Plat sélectionné') : 'Soupe légère' }}
+                      {{ mealPlan?.days?.[dayKey]?.soir ? (getRecipeById(mealPlan.days[dayKey].soir.recipeId)?.title || 'Plat sélectionné') : '+ Choisir une recette' }}
                     </div>
-                    <div class="text-[10px] text-stone-400 font-medium">🕒 20 min  👥 {{ mealPlan.days?.vendredi?.soir?.servings || 4 }}</div>
+                    <div v-if="mealPlan?.days?.[dayKey]?.soir" class="text-[10px] text-stone-400 font-medium">
+                      🕒 {{ (getRecipeById(mealPlan.days[dayKey].soir.recipeId)?.prepTime || 20) + (getRecipeById(mealPlan.days[dayKey].soir.recipeId)?.cookTime || 10) }} min  👥 {{ mealPlan.days[dayKey].soir.servings || 4 }} pers.
+                    </div>
+                    <div v-else class="text-[10px] text-stone-400 font-medium">Créneau libre</div>
                   </div>
                 </div>
-                <button @click="openSwapMeal('vendredi', 'soir')" class="text-stone-400 hover:text-[#9E2A2B] p-2">
-                  <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
-                </button>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button @click="openSwapMeal(dayKey, 'soir')" :title="mealPlan?.days?.[dayKey]?.soir ? 'Changer' : 'Choisir'" class="text-stone-400 hover:text-[#9E2A2B] p-2 transition-colors">
+                    <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
+                  </button>
+                  <button v-if="mealPlan?.days?.[dayKey]?.soir" @click="removeMeal(dayKey, 'soir')" title="Retirer" class="text-stone-300 hover:text-red-600 p-2 transition-colors">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                  </button>
+                </div>
               </div>
+
             </div>
 
             <!-- Bouton Sticky Noir : Liste de courses (14 repas) -->
@@ -1035,7 +1045,7 @@
               <div class="flex items-center gap-2">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span>Liste de courses</span>
-                <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-md font-semibold">14 repas</span>
+                <span class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-md font-semibold">{{ plannedCount }} repas</span>
               </div>
               <i class="fa-solid fa-arrow-right text-xs" :class="isRTL ? 'rotate-180' : ''"></i>
             </button>
@@ -1584,6 +1594,8 @@
           <button @click="savePantryItemForm" class="px-4 py-2 rounded-xl bg-[#9E2A2B] text-white font-bold hover:bg-[#852223]">{{ t.btnSave }}</button>
         </div>
       </div>
+    </div>
+
     <!-- ======================================================== -->
     <!-- MODAL : INSTALLATION PWA (IOS / SAFARI) -->
     <!-- ======================================================== -->

@@ -802,6 +802,12 @@ createApp({
         list = list.filter(r => this.favoriteIds.includes(r.id));
       }
 
+      if (this.aiSearchResult && this.aiSearchResult.recommendations && this.aiSearchResult.recommendations.length > 0) {
+        const recIds = this.aiSearchResult.recommendations.map(r => r.recipeId);
+        const matched = list.filter(r => recIds.includes(r.id));
+        if (matched.length > 0) return matched;
+      }
+
       if (this.searchQuery && !this.aiSearchResult) {
         const q = this.searchQuery.toLowerCase();
         list = list.filter(r => 
@@ -865,7 +871,7 @@ createApp({
     },
 
     missingTotalItemsCount() {
-      return this.shoppingList?.itemsToBuyCount || (this.shoppingList?.items?.length || 3);
+      return this.shoppingList?.itemsToBuyCount || (this.shoppingList?.items?.length || 0);
     },
 
     plannedCount() {
@@ -1021,7 +1027,7 @@ createApp({
           const data = await res.json();
           this.mealPlan = data.plan;
           await this.fetchShoppingList();
-          this.activeTab = 'plan';
+          this.activeTab = 'planning';
           alert(this.currentLang === 'ar' 
             ? 'تم إعداد جدول الأسبوع بنجاح اعتماداً على أطباقك المفضلة!' 
             : (this.currentLang === 'en' ? 'Your weekly meal plan has been created from your favorite dishes!' : 'Votre planning de la semaine a été généré avec succès à partir de vos plats préférés !'));
@@ -1120,6 +1126,12 @@ createApp({
       }
     },
 
+    clearAiSearch() {
+      this.aiSearchResult = null;
+      this.searchQuery = '';
+    },
+
+
     // --- DÉTAILS RECETTE & MODAL ---
     viewRecipeDetails(recipe) {
       this.selectedRecipeModal = recipe;
@@ -1182,7 +1194,8 @@ createApp({
         await this.fetchPlan();
         await this.fetchShoppingList();
         this.addToPlanModalRecipe = null;
-        this.activeTab = 'plan';
+        this.closeRecipeDetails();
+        this.activeTab = 'planning';
       } catch (e) {
         console.error('Erreur ajout plan:', e);
       }
@@ -1246,6 +1259,7 @@ createApp({
         const plan = await res.json();
         this.mealPlan = plan;
         await this.fetchShoppingList();
+        this.activeTab = 'planning';
       } catch (e) {
         console.error('Erreur génération plan IA:', e);
         alert(this.currentLang === 'ar' ? 'تعذر توليد الجدول حالياً، يرجى المحاولة لاحقاً.' : 'Impossible de générer le planning pour le moment. Veuillez réessayer.');
@@ -1611,8 +1625,33 @@ createApp({
 
     async addMissingToShopping(recipe) {
       if (!recipe) return;
-      // Ajoute la recette au prochain slot de repas ou confirme les ingrédients
-      await this.assignRecipeToPlanSlot(recipe.id);
+      // Trouver le premier créneau libre ou utiliser lundi midi
+      const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+      let targetDay = 'lundi';
+      let targetMeal = 'midi';
+      for (const d of days) {
+        if (!this.mealPlan?.days?.[d]?.midi) { targetDay = d; targetMeal = 'midi'; break; }
+        if (!this.mealPlan?.days?.[d]?.soir) { targetDay = d; targetMeal = 'soir'; break; }
+      }
+
+      try {
+        await fetch('/api/plan/set-meal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            day: targetDay,
+            mealType: targetMeal,
+            recipeId: recipe.id,
+            servings: this.modalServings || 4
+          })
+        });
+        await this.fetchPlan();
+        await this.fetchShoppingList();
+      } catch (e) {
+        console.error('Erreur assignation repas courses:', e);
+      }
+
+      this.closeRecipeDetails();
       this.activeTab = 'shopping';
       this.shoppingSubTab = 'list';
     },
@@ -1806,6 +1845,25 @@ createApp({
     resetCheckedShoppingItems() {
       this.checkedShoppingItems = [];
       localStorage.removeItem('checked_shopping_items');
+    },
+
+    getDayLabel(dayKey) {
+      if (!dayKey) return '';
+      const cap = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
+      return this.t['day' + cap] || cap;
+    },
+
+    getDayShort(dayKey) {
+      const map = {
+        lundi: 'LUN',
+        mardi: 'MAR',
+        mercredi: 'MER',
+        jeudi: 'JEU',
+        vendredi: 'VEN',
+        samedi: 'SAM',
+        dimanche: 'DIM'
+      };
+      return map[dayKey] || dayKey.substring(0, 3).toUpperCase();
     }
   }
 }).mount('#app');

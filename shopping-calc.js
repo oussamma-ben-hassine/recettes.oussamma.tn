@@ -111,6 +111,7 @@ export function calculateShoppingList(userId = 'default') {
       requiredQuantity: roundedRequired,
       inStockQuantity: roundedInStock,
       toBuyQuantity: roundedToBuy,
+      toBuy: roundedToBuy,
       unit: agg.unit,
       category: agg.category,
       recommendedBrand: finalBrand,

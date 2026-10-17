@@ -213,6 +213,13 @@ export const Storage = {
     ];
   },
 
+  saveChatHistory(userId = 'default', messages = []) {
+    const all = readJsonFile(CHAT_FILE, {});
+    all[userId] = messages;
+    writeJsonFile(CHAT_FILE, all);
+    return messages;
+  },
+
   // --- GESTION & RÉINITIALISATION (CHEF OUSSAMA / ADMIN) ---
   resetRecipes() {
     writeJsonFile(RECIPES_FILE, initialRecipes);
