@@ -420,5 +420,135 @@ export const initialRecipes = [
     tips: "Pour ne pas percer la feuille au pliage, doublez-la avec un petit morceau de feuille au centre sous l'œuf, et veillez à ce que l'huile soit à bonne température (175°C) pour saisir instantanément la feuille.",
     tags: ["Tunisien", "Halal", "Ramadan", "Entrée", "Croustillant", "Thon", "Œuf"],
     nutritionPerServing: { calories: 340, protein: 18, carbs: 22, fat: 20 }
+  },
+  {
+    id: "rec_it_pasta_creme_champignons",
+    title: "Pâtes Crémeuses aux Champignons & Parmesan",
+    origin: "Italienne",
+    region: "Italie",
+    category: "Pâtes & Risottos",
+    difficulty: "Facile",
+    rating: 4.8,
+    prepTime: 10,
+    cookTime: 15,
+    defaultServings: 4,
+    spiciness: 1,
+    emoji: "🍝",
+    image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281240?auto=format&fit=crop&w=800&q=80",
+    description: "La perfection de la pasta italienne al dente dans une crème onctueuse aux champignons bruns poêlés à l'ail, persil plat et parmesan affiné.",
+    ingredients: [
+      { name: "Tagliatelles ou Penne", quantityPerServing: 110, unit: "g", category: "Épicerie & Féculents", recommendedBrand: "Barilla ou De Cecco", notes: "Cuisson al dente" },
+      { name: "Champignons de Paris bruns", quantityPerServing: 100, unit: "g", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Émincés" },
+      { name: "Crème liquide entière", quantityPerServing: 60, unit: "ml", category: "Frais & Crèmerie", recommendedBrand: "Crème Fraîche", notes: "30% MG" },
+      { name: "Parmigiano Reggiano AOP", quantityPerServing: 25, unit: "g", category: "Frais & Crèmerie", recommendedBrand: "Parmigiano AOP", notes: "Fraîchement râpé" },
+      { name: "Gousses d'ail", quantityPerServing: 0.5, unit: "pièce", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Hachées finement" },
+      { name: "Huile d'olive extra vierge", quantityPerServing: 10, unit: "ml", category: "Huiles & Condiments", recommendedBrand: "Terra Delyssa", notes: "Pour rissoler" }
+    ],
+    instructions: [
+      "Cuire les pâtes dans un grand volume d'eau bouillante salée en retirant 1 minute au temps indiqué (al dente).",
+      "Dans une poêle, faire dorer les champignons et l'ail dans l'huile d'olive à feu vif pendant 5 minutes.",
+      "Baisser le feu, verser la crème liquide, saler, poivrer et laisser réduire 3 minutes.",
+      "Égoutter les pâtes en gardant une louche d'eau de cuisson. Les jeter dans la poêle avec le parmesan et remuer vigoureusement pour émulsionner la sauce."
+    ],
+    tips: "L'eau de cuisson des pâtes chargée d'amidon est le secret des chefs italiens pour lier la sauce et la rendre incroyablement nappante.",
+    tags: ["Italienne", "Express", "Végétarien", "Pâtes", "Crémeux", "Halal"],
+    nutritionPerServing: { calories: 510, protein: 17, carbs: 62, fat: 21 }
+  },
+  {
+    id: "rec_lb_shish_tawook",
+    title: "Shish Taouk Libanais Grillé au Toum",
+    origin: "Libanaise",
+    region: "Levant",
+    category: "Street-Food & Grillades",
+    difficulty: "Facile",
+    rating: 4.9,
+    prepTime: 20,
+    cookTime: 15,
+    defaultServings: 4,
+    spiciness: 2,
+    emoji: "🍢",
+    image: "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80",
+    description: "Les célèbres brochettes libanaises de poulet fermier mariné au yaourt, ail, citron, origan et épices chaudes, grillées et servies avec la crème d'ail toum.",
+    ingredients: [
+      { name: "Blancs de poulet fermier halal", quantityPerServing: 180, unit: "g", category: "Boucherie & Poissonnerie", recommendedBrand: "Boucherie Halal Certifiée", notes: "Coupés en cubes réguliers" },
+      { name: "Yaourt à la grecque nature", quantityPerServing: 40, unit: "g", category: "Frais & Crèmerie", recommendedBrand: "Yaourt Grec", notes: "Pour attendrir la viande" },
+      { name: "Jus de citron frais", quantityPerServing: 15, unit: "ml", category: "Primeur", recommendedBrand: "Citrons frais", notes: "Pressé" },
+      { name: "Pâte de toum (ail & huile)", quantityPerServing: 20, unit: "g", category: "Épices & Condiments", recommendedBrand: "Artisanal", notes: "Crème d'ail libanaise" },
+      { name: "Pains pita libanais", quantityPerServing: 1, unit: "pièce", category: "Épicerie & Féculents", recommendedBrand: "Pain Libanais", notes: "Pour accompagner" }
+    ],
+    instructions: [
+      "Mélanger dans un saladier le yaourt, le jus de citron, 2 cuillères d'huile d'olive, l'ail pressé, du paprika, une pincée de cannelle, sel et poivre.",
+      "Enrober les cubes de poulet et laisser mariner idéalement 1 heure au frais.",
+      "Enfiler le poulet sur des piques à brochettes.",
+      "Griller sur un gril très chaud ou au four à 220°C pendant 12 à 15 minutes en retournant à mi-cuisson jusqu'à coloration dorée."
+    ],
+    tips: "Le yaourt et le citron brisent les fibres du poulet pour lui donner une texture ultra-moelleuse qui ne sèche jamais à la cuisson.",
+    tags: ["Libanaise", "Halal", "Grillades", "Poulet", "Street-Food", "Express"],
+    nutritionPerServing: { calories: 430, protein: 42, carbs: 24, fat: 16 }
+  },
+  {
+    id: "rec_jp_ramen_halal",
+    title: "Ramen Japonais au Bœuf Saisi & Bouillon Miso",
+    origin: "Asiatique",
+    region: "Japon",
+    category: "Soupes & Entrées",
+    difficulty: "Moyen",
+    rating: 4.9,
+    prepTime: 20,
+    cookTime: 25,
+    defaultServings: 4,
+    spiciness: 2,
+    emoji: "🍜",
+    image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+    description: "Un grand bol de réconfort tokyoïte : nouilles japonaises dans un bouillon fumant parfumé au miso blanc, ail, gingembre et huile de sésame, surmonté de tranches fines de bœuf mariné et œuf ajitsuke.",
+    ingredients: [
+      { name: "Nouilles Ramen fraîches ou sèches", quantityPerServing: 100, unit: "g", category: "Épicerie & Féculents", recommendedBrand: "Nouilles Japonaises", notes: "Cuisson rapide" },
+      { name: "Faux-filet de bœuf halal émincé", quantityPerServing: 120, unit: "g", category: "Boucherie & Poissonnerie", recommendedBrand: "Boucherie Halal", notes: "Tranché très fin" },
+      { name: "Pâte miso blanc ou soja", quantityPerServing: 25, unit: "g", category: "Épices & Condiments", recommendedBrand: "Miso Japonais", notes: "Base du bouillon" },
+      { name: "Cébettes / Oignons verts", quantityPerServing: 0.5, unit: "pièce", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Ciselées en rondelles" },
+      { name: "Huile de sésame toasté", quantityPerServing: 5, unit: "ml", category: "Huiles & Condiments", recommendedBrand: "Huile Sésame", notes: "Finition aromatique" }
+    ],
+    instructions: [
+      "Dans une casserole, faire suer l'ail et le gingembre râpés dans un filet d'huile de sésame, puis mouiller avec 1.2L de bouillon de volaille halal.",
+      "Délayer la pâte miso hors du feu pour préserver ses arômes délicats.",
+      "Saisir les lamelles de bœuf à la poêle très chaude pendant 2 minutes avec un trait de sauce soja.",
+      "Cuire les nouilles ramen 3 minutes à l'eau bouillante, égoutter et répartir dans de grands bols profonds.",
+      "Verser le bouillon brûlant, disposer le bœuf saisi, les cébettes ciselées et un filet d'huile pimentée selon goût."
+    ],
+    tips: "Ne faites jamais bouillir la pâte miso directement : délayez-la toujours à feu très doux pour garder toute sa richesse umami.",
+    tags: ["Asiatique", "Japonais", "Halal", "Soupe", "Bœuf", "Ramen"],
+    nutritionPerServing: { calories: 490, protein: 32, carbs: 54, fat: 15 }
+  },
+  {
+    id: "rec_mx_tacos_barbacoa",
+    title: "Tacos Mexicains au Bœuf Effiloché & Guacamole",
+    origin: "Mexicaine",
+    region: "Mexique",
+    category: "Street-Food & Grillades",
+    difficulty: "Moyen",
+    rating: 4.8,
+    prepTime: 20,
+    cookTime: 90,
+    defaultServings: 4,
+    spiciness: 3,
+    emoji: "🌮",
+    image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=800&q=80",
+    description: "Les authentiques street-tacos de Mexico : tortillas de maïs garnies de bœuf mijoté aux épices fumées (paprika, cumin, origan), effiloché à la fourchette, avec coriandre fraîche, oignons rouges et quartier de lime.",
+    ingredients: [
+      { name: "Paleron ou jarret de bœuf halal", quantityPerServing: 160, unit: "g", category: "Boucherie & Poissonnerie", recommendedBrand: "Boucherie Halal", notes: "À mijoter et effilocher" },
+      { name: "Tortillas de maïs ou blé", quantityPerServing: 3, unit: "pièce", category: "Épicerie & Féculents", recommendedBrand: "Tortillas Mexicaines", notes: "Réchauffées à la poêle" },
+      { name: "Avocat mûr pour guacamole", quantityPerServing: 0.5, unit: "pièce", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Écrasé au citron vert" },
+      { name: "Oignon rouge & Coriandre fraîche", quantityPerServing: 20, unit: "g", category: "Primeur", recommendedBrand: "Primeur Local", notes: "Ciselés pour la garniture" },
+      { name: "Épices mexicaines (Cumin, Paprika fumé)", quantityPerServing: 5, unit: "g", category: "Épices & Condiments", recommendedBrand: "Mélange Épices", notes: "Bien dosé" }
+    ],
+    instructions: [
+      "Faire dorer les morceaux de bœuf dans une cocotte avec l'oignon et les épices, puis couvrir d'eau et laisser mijoter à feu doux pendant 1h30 jusqu'à ce que la viande soit ultra tendre.",
+      "Effilocher la viande à l'aide de deux fourchettes dans son jus de cuisson parfumé.",
+      "Réchauffer les tortillas quelques secondes sur une poêle sèche bien chaude.",
+      "Garnir chaque tortilla de viande juteuse, d'une cuillère de guacamole, d'oignons rouges en dés, de coriandre et d'un filet de jus de lime."
+    ],
+    tips: "Passez les tortillas 15 secondes par face sur une poêle en fonte sans matière grasse : elles deviennent souples, chaudes et exhalent toute leur saveur de maïs toasté.",
+    tags: ["Mexicaine", "Halal", "Tacos", "Bœuf", "Street-Food", "Convivial"],
+    nutritionPerServing: { calories: 530, protein: 36, carbs: 45, fat: 20 }
   }
 ];

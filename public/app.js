@@ -10,29 +10,30 @@ const translations = {
     navPantry: "Mon Placard",
     navPreferences: "Préférences",
     navFavorites: "Favoris",
-    chatChefButton: "Chef Amina IA",
+    chatChefButton: "Chef Oussama IA",
     ssoConnected: "SSO Connecté",
     ssoLogin: "Connexion SSO",
     logout: "Déconnexion",
+    btnInstallApp: "📲 Installer l'application",
 
     // Auth wall
-    authWallTitle: "Bienvenue sur l'Application Recettes",
-    authWallSubtitle: "Votre plateforme intelligente de cuisine maghrébine et halal",
+    authWallTitle: "Bienvenue sur Recettes & Épicerie",
+    authWallSubtitle: "Votre chef IA personnel Oussama & toutes les cuisines du monde",
     authWallNotice: "L'accès à cette application est réservé aux utilisateurs authentifiés de l'écosystème oussamma.tn.",
     authWallButton: "Se connecter avec notre SSO",
     authWallBadge: "Accès Sécurisé OIDC / SSO",
     authWallFeatures: [
-      "Catalogue exclusif de recettes tunisiennes, marocaines et orientales",
-      "Génération et personnalisation intelligente de menus par IA (LiteLLM)",
-      "Liste de courses dynamique avec déduction du stock de votre placard",
-      "Assistant culinaire personnel interactif 24/7"
+      "Recettes authentiques du monde entier (Tunisie, Maroc, Italie, Asie, Levant...)",
+      "Chef Oussama IA : conseils personnalisés, astuces et menus 24/7",
+      "Génération et personnalisation intelligente de repas par IA (LiteLLM)",
+      "Liste de courses dynamique avec déduction du stock de votre placard"
     ],
 
     // Recipes tab
-    bannerBadge: "Propulsé par LiteLLM & notre IA culinaire",
-    bannerTitle: "Savourez l'authenticité des recettes tunisiennes & marocaines",
-    bannerDesc: "Explorez le catalogue traditionnel, planifiez vos repas pour la semaine et générez automatiquement la liste exacte de vos courses avec déduction de vos réserves.",
-    searchPlaceholder: "Ex: Tajine sucré salé, Ojja merguez, repas sans viande en 25 min...",
+    bannerBadge: "Propulsé par LiteLLM & Chef Oussama IA",
+    bannerTitle: "Explorez les délices culinaires du monde entier",
+    bannerDesc: "Explorez les recettes traditionnelles et du monde, planifiez vos repas pour la semaine et générez automatiquement la liste exacte de vos courses avec déduction de vos réserves.",
+    searchPlaceholder: "Rechercher une recette, ingrédient, pays...",
     btnSearchAI: "Recherche IA",
     btnCreateAI: "Créer par IA",
     allRecipes: "Toutes les recettes",
@@ -53,9 +54,9 @@ const translations = {
     btnViewRecipe: "Recette",
     btnPlanRecipe: "Planifier",
     noRecipesFound: "Aucune recette trouvée",
-    noRecipesDesc: "Aucune recette ne correspond à votre filtre. Demandez à notre chef IA de la concevoir pour vous !",
+    noRecipesDesc: "Aucune recette ne correspond à votre filtre. Demandez à Chef Oussama de la concevoir pour vous !",
     btnCreateRecipeNow: "Créer cette recette par IA",
-    aiAdviceTitle: "Conseil & Recommandation de Chef Amina :",
+    aiAdviceTitle: "Conseil & Recommandation de Chef Oussama :",
     btnClose: "Fermer",
 
     // Meal planner tab
@@ -163,10 +164,10 @@ const translations = {
     btnViewImportedRecipe: "Voir la recette importée",
 
     // Chatbot
-    chatAminaTitle: "Chef Amina IA",
-    chatAminaStatus: "Conseils culinaires & Prise en main",
-    chatThinking: "Chef Amina réfléchit...",
-    chatInputPlaceholder: "Posez votre question culinaire...",
+    chatAminaTitle: "Chef Oussama IA",
+    chatAminaStatus: "Conseils culinaires mondiaux & Astuces",
+    chatThinking: "Chef Oussama réfléchit...",
+    chatInputPlaceholder: "Posez votre question culinaire à Chef Oussama...",
     quickPromptHelp: "Comment utiliser l'application ?",
     quickPromptCouscous: "Astuce pour réussir la vapeur du couscous ?",
     quickPromptDinner: "Idée de dîner rapide pour ce soir"
@@ -181,22 +182,23 @@ const translations = {
     navPantry: "مؤونة المطبخ",
     navPreferences: "التفضيلات",
     navFavorites: "المفضلة",
-    chatChefButton: "الشيف أمينة (ذكاء اصطناعي)",
+    chatChefButton: "الشيف أسامة (ذكاء اصطناعي)",
     ssoConnected: "متصل عبر SSO",
     ssoLogin: "تسجيل الدخول SSO",
     logout: "تسجيل الخروج",
+    btnInstallApp: "📲 تثبيت التطبيق",
 
     // Auth wall
     authWallTitle: "مرحباً بكم في تطبيق الوصفات وقائمة المشتريات",
-    authWallSubtitle: "منصتكم الذكية للمأكولات المغاربية والشرقية الحلال",
+    authWallSubtitle: "شيفكم الذكي أسامة وكافة أطباق ومطابخ العالم الحلال",
     authWallNotice: "يتطلب استخدام هذا التطبيق تسجيل الدخول عبر حساب SSO الموحد لنظام oussamma.tn.",
     authWallButton: "تسجيل الدخول عبر SSO الخاص بنا",
     authWallBadge: "دخول آمن عبر OIDC / SSO",
     authWallFeatures: [
-      "دليل شامل للوصفات التونسية، المغربية والشرقية الحلال",
+      "دليل شامل لوصفات تونس، المغرب، إيطاليا، المشرق، آسيا ومطابخ العالم الحلال",
+      "الشيف أسامة: استشارات ذكية، نصائح وأطباق مبتكرة 24/7",
       "توليد وتخصيص ذكي للوجبات والوصفات عبر الذكاء الاصطناعي (LiteLLM)",
-      "قائمة مشتريات ديناميكية تطرح تلقائياً ما لديك مسبقاً في مخزنك",
-      "مساعد ومستشار طهي تفاعلي متاح طوال الوقت"
+      "قائمة مشتريات ديناميكية تطرح تلقائياً ما لديك مسبقاً في مخزنك"
     ],
 
     // Recipes tab
@@ -226,7 +228,7 @@ const translations = {
     noRecipesFound: "لم يتم العثور على وصفات",
     noRecipesDesc: "لا توجد وصفة مطابقة لطلبك. اطلب من الشيف الذكي ابتكارها لك حالاً!",
     btnCreateRecipeNow: "ابتكار الوصفة بالذكاء الاصطناعي",
-    aiAdviceTitle: "نصيحة وتوصية الشيف أمينة:",
+    aiAdviceTitle: "نصيحة وتوصية الشيف أسامة:",
     btnClose: "إغلاق",
 
     // Meal planner tab
@@ -334,13 +336,13 @@ const translations = {
     btnViewImportedRecipe: "عرض الوصفة المستوردة",
 
     // Chatbot
-    chatAminaTitle: "الشيف أمينة (ذكاء اصطناعي)",
-    chatAminaStatus: "مستشارة الطبخ ومرشدة التطبيق",
-    chatThinking: "الشيف أمينة تفكر...",
-    chatInputPlaceholder: "اسأل الشيف أمينة عن أي سر في الطهي...",
+    chatAminaTitle: "الشيف أسامة (ذكاء اصطناعي)",
+    chatAminaStatus: "خبير الطبخ العالمي ومرشد التطبيق",
+    chatThinking: "الشيف أسامة يفكر...",
+    chatInputPlaceholder: "اسأل الشيف أسامة عن أي وصفة أو نصيحة...",
     quickPromptHelp: "كيف أستخدم التطبيق وجدول الوجبات؟",
     quickPromptCouscous: "ما سر نجاح تفوير الكسكسي بالطريقة الصحيحة؟",
-    quickPromptDinner: "اقترحي عليّ عشاءً تونسياً سريعاً ولذيذاً الليلة"
+    quickPromptDinner: "اقترح عليّ عشاءً سريعاً ولذيذاً الليلة"
   },
 
   en: {
@@ -352,22 +354,23 @@ const translations = {
     navPantry: "My Pantry",
     navPreferences: "Preferences",
     navFavorites: "Favorites",
-    chatChefButton: "Chef Amina AI",
+    chatChefButton: "Chef Oussama AI",
     ssoConnected: "SSO Connected",
     ssoLogin: "SSO Sign In",
     logout: "Log Out",
+    btnInstallApp: "📲 Install App",
 
     // Auth wall
     authWallTitle: "Welcome to the AI Recipe & Grocery App",
-    authWallSubtitle: "Your smart platform for authentic North African & Halal cuisine",
+    authWallSubtitle: "Your smart platform for worldwide cuisine & halal recipes with Chef Oussama",
     authWallNotice: "Access to this application requires logging in with your oussamma.tn SSO ecosystem account.",
     authWallButton: "Sign in with our SSO",
     authWallBadge: "Secure OIDC / SSO Gate",
     authWallFeatures: [
-      "Authentic Tunisian, Moroccan, and Middle Eastern Halal recipes",
+      "Authentic worldwide recipes (Tunisia, Morocco, Italy, France, Levant, Asia...)",
+      "Chef Oussama AI: personalized tips, tricks and menus 24/7",
       "Smart AI meal planning and recipe generation powered by LiteLLM",
-      "Consolidated grocery list with pantry inventory deductions",
-      "24/7 Interactive AI culinary assistant (Chef Amina)"
+      "Consolidated grocery list with pantry inventory deductions"
     ],
 
     // Recipes tab
@@ -397,7 +400,7 @@ const translations = {
     noRecipesFound: "No recipes found",
     noRecipesDesc: "No recipe matched your filters. Ask our AI Chef to create a tailored one for you!",
     btnCreateRecipeNow: "Create Recipe with AI",
-    aiAdviceTitle: "Chef Amina's Recommendation:",
+    aiAdviceTitle: "Chef Oussama's Recommendation:",
     btnClose: "Close",
 
     // Meal planner tab
@@ -505,10 +508,10 @@ const translations = {
     btnViewImportedRecipe: "View Imported Recipe",
 
     // Chatbot
-    chatAminaTitle: "Chef Amina AI",
-    chatAminaStatus: "Cooking advice & app guide",
-    chatThinking: "Chef Amina is thinking...",
-    chatInputPlaceholder: "Ask Chef Amina any culinary question...",
+    chatAminaTitle: "Chef Oussama AI",
+    chatAminaStatus: "Worldwide Culinary Expert & Guide",
+    chatThinking: "Chef Oussama is thinking...",
+    chatInputPlaceholder: "Ask Chef Oussama any culinary question...",
     quickPromptHelp: "How do I use this app and the meal planner?",
     quickPromptCouscous: "What is the secret to perfect steamed couscous?",
     quickPromptDinner: "Give me an idea for a quick dinner tonight"
@@ -573,11 +576,16 @@ createApp({
       },
       newBrandInput: '',
 
-      // Chatbot Chef Amina IA
+      // Chatbot Chef Oussama IA
       isChatOpen: false,
       chatMessages: [],
       chatInput: '',
       isTypingChat: false,
+
+      // PWA Mobile App Installation
+      canInstallPWA: false,
+      deferredPrompt: null,
+      showIOSInstallModal: false,
 
       // Modals
       selectedRecipeModal: null,
@@ -640,6 +648,16 @@ createApp({
         list = list.filter(r => (r.origin || '').toLowerCase().includes('tunis'));
       } else if (this.currentFilter === 'maroc') {
         list = list.filter(r => (r.origin || '').toLowerCase().includes('maroc'));
+      } else if (this.currentFilter === 'italie') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('ital'));
+      } else if (this.currentFilter === 'france') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('fran'));
+      } else if (this.currentFilter === 'levant') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('liban') || (r.origin || '').toLowerCase().includes('levant') || (r.origin || '').toLowerCase().includes('orient'));
+      } else if (this.currentFilter === 'asie') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('asie') || (r.origin || '').toLowerCase().includes('japon') || (r.origin || '').toLowerCase().includes('chin'));
+      } else if (this.currentFilter === 'mexique') {
+        list = list.filter(r => (r.origin || '').toLowerCase().includes('mexi'));
       } else if (this.currentFilter === 'express') {
         list = list.filter(r => (r.prepTime + r.cookTime) <= 35 || (r.category || '').toLowerCase().includes('express'));
       }
@@ -738,6 +756,24 @@ createApp({
     document.documentElement.lang = this.currentLang;
     document.documentElement.dir = this.currentLang === 'ar' ? 'rtl' : 'ltr';
 
+    // Enregistrement PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW register error:', err));
+    }
+
+    // Écouteur d'installation PWA Mobile / Desktop
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      this.canInstallPWA = true;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      this.canInstallPWA = false;
+      this.deferredPrompt = null;
+      console.log('PWA installée avec succès');
+    });
+
     await this.fetchAuth();
     this.authChecked = true;
 
@@ -771,6 +807,29 @@ createApp({
 
     loginSSO() {
       window.location.href = '/auth/login';
+    },
+
+    // --- PWA INSTALLATION MOBILE ---
+    async installPWA() {
+      if (this.deferredPrompt) {
+        this.deferredPrompt.prompt();
+        const { outcome } = await this.deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          this.canInstallPWA = false;
+        }
+        this.deferredPrompt = null;
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          this.showIOSInstallModal = true;
+        } else {
+          alert(this.currentLang === 'ar'
+            ? 'لتثبيت التطبيق على هاتفك أو حاسوبك: افتح قائمة المتصفح (⋮ أو ⚙️) ثم اضغط على "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية"'
+            : (this.currentLang === 'en'
+              ? 'To install this app on your device: open the browser menu (⋮) and select "Install app" or "Add to Home Screen"'
+              : 'Pour installer l\'application sur votre téléphone ou PC : ouvrez le menu de votre navigateur (⋮) puis cliquez sur "Installer l\'application" ou "Ajouter à l\'écran d\'accueil"'));
+        }
+      }
     },
 
     // --- FAVORIS (PLATS PRÉFÉRÉS) ---
@@ -1288,7 +1347,7 @@ createApp({
       }
     },
 
-    // --- CHATBOT CHEF AMINA IA MULTILINGUE ---
+    // --- CHATBOT CHEF OUSSAMA IA MULTILINGUE ---
     toggleChat() {
       this.isChatOpen = !this.isChatOpen;
       if (this.isChatOpen) {
