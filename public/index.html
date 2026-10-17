@@ -243,6 +243,17 @@
               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all">
               Tous
             </button>
+            <!-- 🥫 Mon Placard (Anti-Gaspi) -->
+            <button 
+              @click="setFilter('placard')" 
+              :class="currentFilter === 'placard' ? 'bg-[#2D6A4F] text-white shadow-sm' : 'bg-white text-[#2D6A4F] border border-emerald-300 hover:bg-emerald-50'"
+              class="px-3.5 py-2 rounded-full text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 shadow-xs">
+              <span>🥫</span>
+              <span>{{ t.chipPantryReady || 'Mon Placard' }}</span>
+              <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold" :class="currentFilter === 'placard' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-[#2D6A4F]'">
+                {{ readyFromPantryCount }}
+              </span>
+            </button>
             <!-- TN Tunisie -->
             <button 
               @click="setFilter('tunisie')" 
@@ -317,8 +328,34 @@
           <!-- Section "Sélection" -->
           <div class="space-y-3 pt-1">
             <div class="flex items-center justify-between">
-              <h2 class="text-base font-black text-[#101828] tracking-tight">Sélection</h2>
+              <h2 class="text-base font-black text-[#101828] tracking-tight">
+                {{ currentFilter === 'placard' ? 'Recettes réalisables avec mon placard' : 'Sélection' }}
+              </h2>
               <span @click="setFilter('all')" class="text-xs text-stone-500 font-semibold hover:text-[#9E2A2B] cursor-pointer">Voir tout</span>
+            </div>
+
+            <!-- Bannière Dédiée Anti-Gaspi Placard (active si filtre placard) -->
+            <div v-if="currentFilter === 'placard'" class="bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 border border-emerald-300/80 rounded-3xl p-4 space-y-2.5 shadow-xs">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-emerald-950 font-black text-xs">
+                  <span>🥫</span>
+                  <span>{{ pantryItems.length }} articles en stock dans votre placard</span>
+                </div>
+                <span class="text-[10px] font-black text-emerald-800 bg-emerald-200/80 px-2 py-0.5 rounded-full">
+                  {{ readyFromPantryCount }} 100% prêts
+                </span>
+              </div>
+              <p class="text-[11px] text-stone-600 leading-snug">
+                Les recettes ci-dessous sont ordonnées selon les ingrédients que vous avez déjà à la maison pour éliminer le gaspillage.
+              </p>
+              <button 
+                @click="generatePantryRecipeAI" 
+                :disabled="isGeneratingPantryRecipe"
+                class="w-full py-2.5 rounded-2xl bg-[#9E2A2B] hover:bg-[#852223] text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50">
+                <i v-if="isGeneratingPantryRecipe" class="fa-solid fa-spinner fa-spin text-xs"></i>
+                <i v-else class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                <span>{{ t.btnGeneratePantryRecipe || 'Créer une recette avec mon stock par IA' }}</span>
+              </button>
             </div>
 
             <!-- Grille / Liste des Cartes de Recettes -->
@@ -332,6 +369,25 @@
                 <div class="relative w-full h-36 bg-stone-100 overflow-hidden cursor-pointer" @click="openRecipeDetails(recipe)">
                   <img :src="recipe.image" :alt="recipe.title" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                   
+                  <!-- Badge Placard Stock Top-Left -->
+                  <div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-1">
+                    <span 
+                      v-if="getMissingCount(recipe) === 0" 
+                      class="bg-emerald-600/95 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                      <i class="fa-solid fa-check text-[8px]"></i> 100% stock
+                    </span>
+                    <span 
+                      v-else-if="getMissingCount(recipe) === 1" 
+                      class="bg-amber-600/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                      1 manquant
+                    </span>
+                    <span 
+                      v-else-if="currentFilter === 'placard'" 
+                      class="bg-black/60 backdrop-blur-md text-white text-[9px] font-semibold px-2 py-0.5 rounded-full shadow-sm">
+                      {{ getMissingCount(recipe) }} manquants
+                    </span>
+                  </div>
+
                   <!-- Floating Heart Top-Right -->
                   <button 
                     @click.stop="toggleFavorite(recipe.id)"
@@ -693,8 +749,43 @@
 
           <!-- SOUS-ONGLET 2 : MON PLACARD & RÉSERVES -->
           <div v-if="shoppingSubTab === 'pantry'" class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-stone-600">Stocks Déclarés chez vous</span>
+            
+            <!-- Hero Card Anti-Gaspi Placard -->
+            <div class="bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 border border-emerald-300/80 rounded-3xl p-4 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-2xl bg-white border border-emerald-200 flex items-center justify-center text-2xl shadow-xs shrink-0">
+                    🥫
+                  </div>
+                  <div>
+                    <h3 class="font-black text-xs text-[#101828]">{{ t.pantryBannerTitle || 'Que cuisiner avec mon placard ?' }}</h3>
+                    <p class="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                      <span class="font-extrabold">{{ readyFromPantryCount }}</span> {{ t.pantryBannerSub || 'recettes immédiatement faisables avec vos ingrédients en stock' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-0.5">
+                <button 
+                  @click="showPantryReadyRecipes" 
+                  class="py-2.5 px-3 rounded-2xl bg-white hover:bg-emerald-50 border border-emerald-300 text-emerald-900 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-95">
+                  <i class="fa-solid fa-utensils text-[11px] text-emerald-600"></i>
+                  <span>Voir recettes ({{ readyFromPantryCount }})</span>
+                </button>
+                <button 
+                  @click="generatePantryRecipeAI" 
+                  :disabled="isGeneratingPantryRecipe"
+                  class="py-2.5 px-3 rounded-2xl bg-[#9E2A2B] hover:bg-[#852223] text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50">
+                  <i v-if="isGeneratingPantryRecipe" class="fa-solid fa-spinner fa-spin text-[11px]"></i>
+                  <i v-else class="fa-solid fa-wand-magic-sparkles text-[11px]"></i>
+                  <span>Créer par IA</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-xs font-bold text-stone-600">Stocks Déclarés chez vous ({{ pantryItems.length }})</span>
               <button 
                 @click="openAddPantryModal" 
                 class="px-3 py-1.5 rounded-full bg-[#9E2A2B] text-white font-bold text-xs shadow-sm flex items-center gap-1">
@@ -957,6 +1048,11 @@
 
           <!-- Prompts Rapides -->
           <div class="flex items-center gap-1.5 overflow-x-auto custom-scroll pb-1">
+            <button 
+              @click="sendQuickPrompt('Que cuisiner ce soir avec ce que j\'ai dans mon placard ?')"
+              class="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] font-bold hover:bg-emerald-100 shrink-0 flex items-center gap-1">
+              🥫 Mon placard
+            </button>
             <button 
               @click="sendQuickPrompt('Comment réussir la vapeur du couscous ?')"
               class="px-3 py-1.5 rounded-full bg-white border border-stone-200 text-stone-700 text-[11px] font-semibold hover:border-[#9E2A2B] shrink-0">

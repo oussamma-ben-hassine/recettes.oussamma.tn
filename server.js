@@ -359,6 +359,27 @@ app.post('/api/ai/generate-recipe', requireAuth, async (req, res) => {
   }
 });
 
+app.post('/api/ai/pantry-recipe', requireAuth, async (req, res) => {
+  try {
+    const { note } = req.body || {};
+    const userId = getUserId(req);
+    const prefs = Storage.getPreferences(userId);
+    const pantry = Storage.getPantry(userId);
+
+    if (!pantry || pantry.length === 0) {
+      return res.status(400).json({ error: 'Votre placard est vide. Ajoutez d\'abord des ingrédients en stock.' });
+    }
+
+    const generated = await AIService.generateRecipeFromPantry(pantry, prefs, note);
+    Storage.saveRecipe(generated);
+
+    res.json({ success: true, recipe: generated });
+  } catch (err) {
+    console.error('Erreur API AI Pantry Recipe:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/ai/import-web-recipe', requireAuth, async (req, res) => {
   try {
     const { queryOrUrl } = req.body;
@@ -513,10 +534,15 @@ app.post('/api/chat', requireAuth, async (req, res) => {
       }
     }
 
+    const pantrySummary = pantry && pantry.length > 0 
+      ? pantry.map(p => `${p.name} (${p.quantity} ${p.unit})`).join(', ')
+      : 'Placard vide';
+
     const context = {
       recipeCount: allRecipes.length,
       plannedMealsCount,
       pantryCount: pantry.length,
+      pantryList: pantrySummary,
       favoriteBrands: prefs.favoriteBrands || []
     };
 

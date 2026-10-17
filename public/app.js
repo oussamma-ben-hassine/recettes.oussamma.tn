@@ -170,7 +170,19 @@ const translations = {
     chatInputPlaceholder: "Posez votre question culinaire à Chef Oussama...",
     quickPromptHelp: "Comment utiliser l'application ?",
     quickPromptCouscous: "Astuce pour réussir la vapeur du couscous ?",
-    quickPromptDinner: "Idée de dîner rapide pour ce soir"
+    quickPromptDinner: "Idée de dîner rapide pour ce soir",
+    quickPromptPantry: "Que cuisiner ce soir avec les ingrédients de mon placard ?",
+
+    // Anti-Gaspi Placard
+    chipPantryReady: "Mon Placard",
+    pantryBannerTitle: "Que cuisiner avec mon placard ?",
+    pantryBannerSub: "recettes immédiatement faisables avec vos ingrédients en stock",
+    btnViewPantryRecipes: "Voir les recettes faisables",
+    btnGeneratePantryRecipe: "Créer une recette avec mon stock par IA",
+    inStock100: "100% en stock",
+    missingCountText: "manquant",
+    missingPluralText: "manquants",
+    pantryEmptyNotice: "Votre placard est vide pour l'instant ! Ajoutez d'abord quelques ingrédients dans l'onglet Placard & Courses."
   },
 
   ar: {
@@ -342,7 +354,19 @@ const translations = {
     chatInputPlaceholder: "اسأل الشيف أسامة عن أي وصفة أو نصيحة...",
     quickPromptHelp: "كيف أستخدم التطبيق وجدول الوجبات؟",
     quickPromptCouscous: "ما سر نجاح تفوير الكسكسي بالطريقة الصحيحة؟",
-    quickPromptDinner: "اقترح عليّ عشاءً سريعاً ولذيذاً الليلة"
+    quickPromptDinner: "اقترح عليّ عشاءً سريعاً ولذيذاً الليلة",
+    quickPromptPantry: "ماذا أطبخ الليلة بما يتوفر لدي في المطبخ؟",
+
+    // Anti-Gaspi Placard
+    chipPantryReady: "مؤونة مطبخي",
+    pantryBannerTitle: "ماذا أطبخ من مؤونة مطبخي؟",
+    pantryBannerSub: "وصفات يمكن إعدادها فوراً بما لديك من مكونات",
+    btnViewPantryRecipes: "عرض الوجبات الممكنة",
+    btnGeneratePantryRecipe: "ابتكار طبق من المخزون بالـ AI",
+    inStock100: "جاهز 100% في المخزن",
+    missingCountText: "ناقص",
+    missingPluralText: "نواقص",
+    pantryEmptyNotice: "مخزنك فارغ حالياً! أضف بعض المكونات أولاً في قسم مؤونة المطبخ."
   },
 
   en: {
@@ -514,7 +538,19 @@ const translations = {
     chatInputPlaceholder: "Ask Chef Oussama any culinary question...",
     quickPromptHelp: "How do I use this app and the meal planner?",
     quickPromptCouscous: "What is the secret to perfect steamed couscous?",
-    quickPromptDinner: "Give me an idea for a quick dinner tonight"
+    quickPromptDinner: "Give me an idea for a quick dinner tonight",
+    quickPromptPantry: "What can I cook tonight with the ingredients in my pantry?",
+
+    // Anti-Gaspi Placard
+    chipPantryReady: "My Pantry",
+    pantryBannerTitle: "What can I cook with my pantry?",
+    pantryBannerSub: "recipes you can make right now with what you already have at home",
+    btnViewPantryRecipes: "View cookable recipes",
+    btnGeneratePantryRecipe: "Create tailored recipe from pantry with AI",
+    inStock100: "100% in stock",
+    missingCountText: "missing",
+    missingPluralText: "missing",
+    pantryEmptyNotice: "Your pantry is empty right now! Add some ingredients in the Pantry tab first."
   }
 };
 
@@ -601,6 +637,7 @@ createApp({
       isCreateRecipeModalOpen: false,
       aiCreateRecipePrompt: '',
       isGeneratingCustomRecipe: false,
+      isGeneratingPantryRecipe: false,
 
       // Modal Import Web (Gratuit)
       isImportWebModalOpen: false,
@@ -660,6 +697,9 @@ createApp({
         list = list.filter(r => (r.origin || '').toLowerCase().includes('mexi'));
       } else if (this.currentFilter === 'express') {
         list = list.filter(r => (r.prepTime + r.cookTime) <= 35 || (r.category || '').toLowerCase().includes('express'));
+      } else if (this.currentFilter === 'placard') {
+        // Filtre et trie par disponibilité dans le placard (recettes immédiatement faisables en premier)
+        list = [...list].sort((a, b) => this.getMissingCount(a) - this.getMissingCount(b));
       }
 
       if (this.showOnlyFavorites && this.currentFilter !== 'favoris') {
@@ -741,6 +781,11 @@ createApp({
         }
       }
       return count;
+    },
+
+    readyFromPantryCount() {
+      if (!this.pantryItems || this.pantryItems.length === 0 || !this.recipes) return 0;
+      return this.recipes.filter(r => this.getMissingCount(r) === 0).length;
     }
   },
 
@@ -1420,6 +1465,52 @@ createApp({
     getMissingCount(recipe, servings = 4) {
       if (!recipe || !recipe.ingredients) return 0;
       return recipe.ingredients.filter(ing => !this.isIngredientInStock(ing.name)).length;
+    },
+
+    getInStockCount(recipe) {
+      if (!recipe || !recipe.ingredients) return 0;
+      return recipe.ingredients.filter(ing => this.isIngredientInStock(ing.name)).length;
+    },
+
+    getMatchPercentage(recipe) {
+      if (!recipe || !recipe.ingredients || recipe.ingredients.length === 0) return 0;
+      const inStock = this.getInStockCount(recipe);
+      return Math.round((inStock / recipe.ingredients.length) * 100);
+    },
+
+    showPantryReadyRecipes() {
+      this.activeTab = 'recipes';
+      this.closeRecipeDetails();
+      this.setFilter('placard');
+    },
+
+    async generatePantryRecipeAI() {
+      if (!this.pantryItems || this.pantryItems.length === 0) {
+        alert(this.t.pantryEmptyNotice);
+        this.activeTab = 'shopping';
+        this.shoppingSubTab = 'pantry';
+        return;
+      }
+      this.isGeneratingPantryRecipe = true;
+      try {
+        const res = await fetch('/api/ai/pantry-recipe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note: '' })
+        });
+        const data = await res.json();
+        if (data.recipe) {
+          this.recipes.unshift(data.recipe);
+          this.openRecipeDetails(data.recipe);
+        } else {
+          alert(data.error || 'Erreur lors de la création de la recette anti-gaspi');
+        }
+      } catch (e) {
+        console.error('Erreur generatePantryRecipeAI:', e);
+        alert('Erreur lors de la génération avec le placard');
+      } finally {
+        this.isGeneratingPantryRecipe = false;
+      }
     },
 
     async addMissingToShopping(recipe) {

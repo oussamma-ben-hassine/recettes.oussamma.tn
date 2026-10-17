@@ -181,6 +181,74 @@ Génère la recette en JSON STRICT avec la structure exacte suivante :
     return recipe;
   },
 
+  // 2b. Génération de recette Anti-Gaspillage avec le placard existant
+  async generateRecipeFromPantry(pantryItems = [], preferences = {}, note = '') {
+    const pantrySummary = pantryItems.map(p => `${p.name} (${p.quantity} ${p.unit})`).join(', ');
+
+    const systemPrompt = `Tu es "Chef Oussama", grand chef créatif, anti-gaspillage et expert des cuisines du monde entier 100% halal.
+L'utilisateur a dans son placard et son réfrigérateur les ingrédients suivants en stock :
+${pantrySummary || 'Ingrédients de base : huile d\'olive, oignons, tomates, épices'}
+
+Consigne spéciale : ${note || 'Créer le meilleur plat possible en maximisant l\'usage des ingrédients déjà présents dans le placard pour éviter de nouvelles courses.'}
+Préférences culinaires : ${JSON.stringify(preferences || {})}
+
+Règles impératives :
+1. Crée une recette savoureuse, originale et équilibrée qui utilise principalement ou exclusivement les ingrédients présents dans le placard.
+2. Si un ingrédient manquant est indispensable (ex: un filet d'eau ou un œuf), mentionne-le clairement, mais limite au maximum les nouveaux achats.
+3. Le plat doit être 100% Halal.
+4. Dans le champ "tips", donne une astuce secrète de Chef Oussama pour sublimer ce plat anti-gaspi.
+
+Réponds impérativement en JSON STRICT sous ce format :
+{
+  "title": "Nom appétissant du plat",
+  "origin": "Pays ou style culinaire (ex: Tunisie, Italie, Méditerranée, Fusion...)",
+  "region": "Style de préparation",
+  "category": "Plats Express & Poêlées" ou "Tajines & Mijotés" ou "Couscous & Traditionnels",
+  "difficulty": "Facile" ou "Moyen",
+  "prepTime": 15,
+  "cookTime": 25,
+  "spiciness": 2,
+  "defaultServings": 4,
+  "rating": 4.9,
+  "emoji": "🍲",
+  "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop",
+  "description": "Description alléchante mettant en valeur les ingrédients utilisés du placard...",
+  "ingredients": [
+    {
+      "name": "Nom de l'ingrédient",
+      "quantityPerServing": 100,
+      "unit": "g" ou "ml" ou "pièce" ou "c. à soupe",
+      "category": "Épicerie & Féculents" ou "Primeur" ou "Boucherie & Poissonnerie" ou "Épices & Condiments" ou "Frais & Crèmerie" ou "Huiles & Condiments",
+      "recommendedBrand": "",
+      "notes": "En stock dans votre placard"
+    }
+  ],
+  "instructions": [
+    "Étape 1 détaillée...",
+    "Étape 2 détaillée..."
+  ],
+  "tips": "Astuce secrète de Chef Oussama pour ce plat anti-gaspillage",
+  "tags": ["Anti-Gaspi", "Placard", "Halal", "Chef Oussama"],
+  "nutritionPerServing": {
+    "calories": 480,
+    "protein": 24,
+    "carbs": 50,
+    "fat": 15
+  }
+}`;
+
+    const raw = await callLiteLLM([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Conçois la meilleure recette possible avec mes ingrédients en stock dans mon placard : ${pantrySummary}` }
+    ], { jsonMode: true });
+
+    const recipe = JSON.parse(raw);
+    recipe.id = `rec_pantry_${Date.now()}`;
+    recipe.source = 'Anti-Gaspi Placard (Chef Oussama)';
+    recipe.createdAt = new Date().toISOString();
+    return recipe;
+  },
+
   // 3. Génération Automatique de Planning de Repas
   async generateWeeklyPlan(preferences, allRecipes, servings = 4) {
     const recipeSummary = allRecipes.map(r => ({
@@ -253,12 +321,14 @@ Tu connais parfaitement et sans limite :
   * Favoris ❤️ : cliquer sur le signet pour composer un menu coup de cœur
 
 Contexte actuel de l'utilisateur :
-- Recettes disponibles au total : ${context.recipeCount || 8}
+- Ingrédients actuellement disponibles dans son placard : ${context.pantryList || 'Placard vide ou non encore renseigné'}
+- Recettes disponibles au total dans l'application : ${context.recipeCount || 8}
 - Repas planifiés cette semaine : ${context.plannedMealsCount || 0}
-- Éléments dans le placard : ${context.pantryCount || 0}
+- Nombre d'ingrédients en réserve : ${context.pantryCount || 0}
 - Marques favorites : ${context.favoriteBrands?.join(', ') || 'Terra Delyssa, Dari, Sicam'}
 - Langue demandée : ${lang}
 
+Si l'utilisateur te demande que cuisiner avec son placard ou ce qu'il a chez lui, analyse sa liste d'ingrédients ci-dessus et propose-lui 1 ou 2 plats concrets, rapides et savoureux réalisables tout de suite !
 Si l'utilisateur te demande une recette, une astuce de cuisine, ou de l'aide pour planifier ses repas, réponds avec précision, clarté et passion culinaire.
 ${langInstruction}`;
 
