@@ -169,11 +169,6 @@ Génère la recette en JSON STRICT avec la structure exacte suivante :
     "fat": 18
   }
 }`;
-    "protein": 30,
-    "carbs": 55,
-    "fat": 18
-  }
-}`;
 
     const raw = await callLiteLLM([
       { role: 'system', content: systemPrompt },
